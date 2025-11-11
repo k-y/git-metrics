@@ -79,11 +79,23 @@ The easiest way to install `git-metrics` is to download a prebuilt binary from t
   git-metrics -r /path/to/repository
   ```
 
+* Get metrics for a specific date range:
+  ```bash
+  git-metrics --daily-start 2024-01-01 --daily-end 2024-12-31
+  ```
+
+* Get metrics for a single day:
+  ```bash
+  git-metrics --daily-start 2024-06-15 --daily-end 2024-06-15
+  ```
+
 ## Command line options
 
 | Option | Description |
 |--------|-------------|
 | `-r`, `--repository` | Path to Git repository (default: current directory) |
+| `--daily-start` | Start date for daily metrics (YYYY-MM-DD format) |
+| `--daily-end` | End date for daily metrics (YYYY-MM-DD format) |
 | `--debug` | Enable debug output |
 | `--no-progress` | Disable progress indicators |
 | `--version` | Display version information and exit |
@@ -93,6 +105,8 @@ The easiest way to install `git-metrics` is to download a prebuilt binary from t
 
 `git-metrics` provides several sections of output:
 
+### Standard mode (default)
+
 1. **Run information**: Details about when, where, and with which versions the tool was executed.
 2. **Repository information**: Basic metadata about your repository including path, remote URL, age, and commit history.
 3. **Historic & estimated growth**: Year-by-year breakdown of Git object growth (commits, trees, blobs) and disk usage, with future projections based on historical trends.
@@ -100,6 +114,15 @@ The easiest way to install `git-metrics` is to download a prebuilt binary from t
 5. **Largest files**: Identification of the largest files in your repository by compressed size, along with their last commit year.
 6. **File extensions**: Analysis of file extensions and their contribution to repository size.
 7. **Contributors**: Statistics on authors and committers over time, showing who has contributed the most commits by year.
+
+### Daily metrics mode (with --daily-start and --daily-end)
+
+When using the daily metrics flags, the output is simplified to show:
+
+1. **Run information**: System and version details.
+2. **Repository information**: Basic repository metadata.
+3. **Daily metrics summary**: Total counts and sizes for Git objects created within the specified date range.
+4. **Top files**: The 10 largest files by compressed size from the date range.
 
 ### Important metrics explained
 
