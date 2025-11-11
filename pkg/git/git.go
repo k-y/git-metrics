@@ -252,6 +252,96 @@ func ShellToUse() string {
 	return "sh"
 }
 
+// GetDailyStats calculates growth statistics for a specific date range
+func GetDailyStats(startDate, endDate time.Time, debug bool) (models.GrowthStatistics, error) {
+	utils.DebugPrint(debug, "Calculating stats for date range %s to %s", startDate.Format("2006-01-02"), endDate.Format("2006-01-02"))
+	currentStatistics := models.GrowthStatistics{Year: startDate.Year()}
+	startTime := time.Now()
+
+	// Build shell command with before and after dates (add one day to endDate to be inclusive)
+	afterDate := startDate.AddDate(0, 0, -1).Format("2006-01-02")
+	beforeDate := endDate.AddDate(0, 0, 1).Format("2006-01-02")
+	commandString := fmt.Sprintf("git rev-list --objects --all --before %s --after %s | git cat-file --batch-check='%%(objecttype) %%(objectname) %%(objectsize) %%(objectsize:disk) %%(rest)'", beforeDate, afterDate)
+	command := exec.Command(ShellToUse(), "-c", commandString)
+	output, err := command.Output()
+	if err != nil {
+		return currentStatistics, err
+	}
+
+	// Prepare a map to collect blob files (keyed by file path).
+	blobsMap := make(map[string]models.FileInformation)
+	var commits, trees, blobs int
+	var compressed, uncompressed int64
+	lines := strings.Split(string(output), "\n")
+	for _, line := range lines {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		fields := strings.Fields(line)
+		if len(fields) < 4 {
+			continue
+		}
+		objectType := fields[0]
+
+		uncompressedSize, err := strconv.ParseInt(fields[2], 10, 64)
+		if err != nil {
+			continue // Skip invalid size entries
+		}
+		compressedSize, err := strconv.ParseInt(fields[3], 10, 64)
+		if err != nil {
+			continue // Skip invalid size entries
+		}
+		compressed += compressedSize
+		uncompressed += uncompressedSize
+
+		switch objectType {
+		case "commit":
+			commits++
+		case "tree":
+			trees++
+		case "blob":
+			blobs++
+			// Collect blob if file path available (5th field onward)
+			if len(fields) >= 5 {
+				filePath := strings.Join(fields[4:], " ")
+				filePath = strings.TrimSpace(filePath)
+				if filePath != "" {
+					if existing, ok := blobsMap[filePath]; ok {
+						existing.Blobs++
+						existing.CompressedSize += compressedSize
+						existing.UncompressedSize += uncompressedSize
+						blobsMap[filePath] = existing
+					} else {
+						blobsMap[filePath] = models.FileInformation{
+							Path:             filePath,
+							Blobs:            1,
+							CompressedSize:   compressedSize,
+							UncompressedSize: uncompressedSize,
+						}
+					}
+				}
+			}
+		}
+	}
+
+	currentStatistics.Commits = commits
+	currentStatistics.Trees = trees
+	currentStatistics.Blobs = blobs
+	currentStatistics.Compressed = compressed
+	currentStatistics.Uncompressed = uncompressed
+	currentStatistics.RunTime = time.Since(startTime)
+
+	// Convert blobsMap to slice.
+	var largestFiles []models.FileInformation
+	for _, fileInfo := range blobsMap {
+		largestFiles = append(largestFiles, fileInfo)
+	}
+	currentStatistics.LargestFiles = largestFiles
+
+	utils.DebugPrint(debug, "Finished calculating stats for date range in %v", currentStatistics.RunTime)
+	return currentStatistics, nil
+}
+
 // GetContributors returns all commit authors and committers with dates from git history
 func GetContributors() ([]string, error) {
 	// Execute the git command to get all contributors with their commit dates

@@ -34,6 +34,8 @@ func main() {
 	pflag.BoolVar(&debug, "debug", false, "Enable debug output")
 	noProgress := pflag.Bool("no-progress", false, "Disable progress indicators")
 	showHelp := pflag.BoolP("help", "h", false, "Display this help message")
+	dailyStart := pflag.String("daily-start", "", "Start date for daily metrics (YYYY-MM-DD)")
+	dailyEnd := pflag.String("daily-end", "", "End date for daily metrics (YYYY-MM-DD)")
 
 	pflag.Parse()
 
@@ -47,6 +49,36 @@ func main() {
 	if *showVersion {
 		fmt.Printf("git-metrics version %s\n", utils.GetGitMetricsVersion())
 		os.Exit(0)
+	}
+
+	// Validate daily date flags
+	var dailyStartTime, dailyEndTime time.Time
+	var isDailyMode bool
+	if *dailyStart != "" || *dailyEnd != "" {
+		isDailyMode = true
+		if *dailyStart == "" {
+			fmt.Fprintf(os.Stderr, "Error: --daily-start is required when using --daily-end\n")
+			os.Exit(1)
+		}
+		if *dailyEnd == "" {
+			fmt.Fprintf(os.Stderr, "Error: --daily-end is required when using --daily-start\n")
+			os.Exit(1)
+		}
+		var err error
+		dailyStartTime, err = time.Parse("2006-01-02", *dailyStart)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: invalid --daily-start date format. Use YYYY-MM-DD\n")
+			os.Exit(1)
+		}
+		dailyEndTime, err = time.Parse("2006-01-02", *dailyEnd)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: invalid --daily-end date format. Use YYYY-MM-DD\n")
+			os.Exit(1)
+		}
+		if dailyStartTime.After(dailyEndTime) {
+			fmt.Fprintf(os.Stderr, "Error: --daily-start must be before or equal to --daily-end\n")
+			os.Exit(1)
+		}
 	}
 
 	// Set progress visibility based on --no-progress flag and output destination
@@ -189,6 +221,74 @@ func main() {
 
 	fmt.Printf("Age                        %s\n", ageString)
 
+	// Check if we're in daily mode
+	if isDailyMode {
+		// Daily metrics mode
+		fmt.Println()
+		fmt.Println("DAILY METRICS ##############################################################################################################")
+		fmt.Println()
+		fmt.Printf("Date range: %s to %s\n", dailyStartTime.Format("2006-01-02"), dailyEndTime.Format("2006-01-02"))
+		fmt.Println()
+
+		// Calculate daily statistics
+		dailyStats, err := git.GetDailyStats(dailyStartTime, dailyEndTime, debug)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error calculating daily statistics: %v\n", err)
+			os.Exit(1)
+		}
+
+		// Display results
+		fmt.Printf("Commits:                   %s\n", utils.FormatNumber(dailyStats.Commits))
+		fmt.Printf("Trees:                     %s\n", utils.FormatNumber(dailyStats.Trees))
+		fmt.Printf("Blobs:                     %s\n", utils.FormatNumber(dailyStats.Blobs))
+		fmt.Printf("Object size:               %s\n", utils.FormatSize(dailyStats.Uncompressed))
+		fmt.Printf("On-disk size:              %s\n", utils.FormatSize(dailyStats.Compressed))
+
+		// Display top files if available
+		if len(dailyStats.LargestFiles) > 0 {
+			fmt.Println()
+			fmt.Println("TOP FILES ##################################################################################################################")
+			fmt.Println()
+
+			// Sort files by compressed size
+			sort.Slice(dailyStats.LargestFiles, func(i, j int) bool {
+				return dailyStats.LargestFiles[i].CompressedSize > dailyStats.LargestFiles[j].CompressedSize
+			})
+
+			// Display top 10 files
+			limit := 10
+			if len(dailyStats.LargestFiles) < limit {
+				limit = len(dailyStats.LargestFiles)
+			}
+
+			fmt.Println("File                                                                         On-disk size    Object size")
+			fmt.Println("------------------------------------------------------------------------------------------------------------------------")
+
+			for i := 0; i < limit; i++ {
+				file := dailyStats.LargestFiles[i]
+				path := file.Path
+				if len(path) > 76 {
+					path = path[:73] + "..."
+				}
+				fmt.Printf("%-76s %12s    %12s\n",
+					path,
+					utils.FormatSize(file.CompressedSize),
+					utils.FormatSize(file.UncompressedSize))
+			}
+		}
+
+		// Get memory statistics for final output
+		var memoryStatistics runtime.MemStats
+		runtime.ReadMemStats(&memoryStatistics)
+
+		fmt.Printf("\nFinished in %s with a memory footprint of %s.\n",
+			utils.FormatDuration(time.Since(startTime)),
+			strings.TrimSpace(utils.FormatSize(int64(memoryStatistics.Sys))))
+
+		os.Exit(0)
+	}
+
+	// Regular yearly statistics mode
 	// Display the section header before data collection
 	fmt.Println()
 	fmt.Println("HISTORIC & ESTIMATED GROWTH ############################################################################################")
