@@ -291,61 +291,104 @@ func getAllObjectsWithSizes(repositoryPath string, debug bool) (map[string]objec
 }
 
 func getObjectFirstSeenDates(repositoryPath string, commitTimestamps map[string]time.Time, debug bool) (map[string]time.Time, error) {
-	// This is the expensive part - we need to walk through all commits in chronological order
-	// and track when each object first appears
+	// Use a single git log command to get all objects with their first-seen dates
+	// This is much faster than walking commits one by one
 
 	utils.DebugPrint(debug, "Walking commit history to find first-seen dates...")
 
-	// Get commits in reverse chronological order (oldest first)
-	cmd := exec.Command("git", "-C", repositoryPath, "rev-list", "--all", "--reverse")
+	firstSeen := make(map[string]time.Time)
+
+	// Get all commits with their objects in one command
+	// --reverse: oldest commits first
+	// --raw: show objects modified in each commit
+	// --diff-filter=A: only show Added files (first introduction)
+	// --no-abbrev: full object IDs
+	// --pretty=format:'%H %ct': commit hash and timestamp
+	commandString := "git log --all --reverse --raw --diff-filter=A --no-abbrev --pretty=format:'%H %ct'"
+	cmd := exec.Command(shellToUse(), "-c", fmt.Sprintf("cd %s && %s", repositoryPath, commandString))
 	output, err := cmd.Output()
 	if err != nil {
 		return nil, err
 	}
 
-	firstSeen := make(map[string]time.Time)
-	commits := strings.Split(strings.TrimSpace(string(output)), "\n")
+	lines := strings.Split(string(output), "\n")
+	var currentCommitHash string
+	var currentCommitTime time.Time
 
-	utils.DebugPrint(debug, "Processing %d commits to find object first-seen dates...", len(commits))
-
-	for i, commitHash := range commits {
-		if strings.TrimSpace(commitHash) == "" {
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" {
 			continue
 		}
 
-		if debug && i > 0 && i % 1000 == 0 {
-			utils.DebugPrint(debug, "Processed %d/%d commits...", i, len(commits))
-		}
-
-		commitTime := commitTimestamps[commitHash]
-
-		// Record the commit itself
-		if _, exists := firstSeen[commitHash]; !exists {
-			firstSeen[commitHash] = commitTime
-		}
-
-		// Get all objects reachable from this commit
-		cmd := exec.Command("git", "-C", repositoryPath, "rev-list", "--objects", commitHash, "--not", "--all", fmt.Sprintf("^%s^", commitHash))
-		output, err := cmd.Output()
-		if err != nil {
-			// For the first commit, this will fail, so just get all objects from this commit
-			cmd = exec.Command("git", "-C", repositoryPath, "rev-list", "--objects", commitHash)
-			output, _ = cmd.Output()
-		}
-
-		lines := strings.Split(string(output), "\n")
-		for _, line := range lines {
-			if strings.TrimSpace(line) == "" {
-				continue
-			}
-			fields := strings.Fields(line)
-			if len(fields) == 0 {
-				continue
+		// Check if this is a commit line (hash and timestamp)
+		fields := strings.Fields(line)
+		if len(fields) == 2 && len(fields[0]) == 40 {
+			// This is a commit line
+			currentCommitHash = fields[0]
+			if timestamp, err := strconv.ParseInt(fields[1], 10, 64); err == nil {
+				currentCommitTime = time.Unix(timestamp, 0)
 			}
 
-			objectID := fields[0]
-			if _, exists := firstSeen[objectID]; !exists {
-				firstSeen[objectID] = commitTime
+			// Record the commit itself
+			if _, exists := firstSeen[currentCommitHash]; !exists {
+				firstSeen[currentCommitHash] = currentCommitTime
+			}
+		} else if strings.HasPrefix(line, ":") {
+			// This is a diff line showing an added file
+			// Format: :000000 100644 0000000... <blob-id>... A	<path>
+			parts := strings.Fields(line)
+			if len(parts) >= 5 {
+				blobID := parts[3] // The new blob ID
+				if _, exists := firstSeen[blobID]; !exists {
+					firstSeen[blobID] = currentCommitTime
+				}
+			}
+		}
+	}
+
+	// Get all objects (including trees) by walking commits in chronological order
+	// Use rev-list --objects --reverse to get all objects in order of first appearance
+	utils.DebugPrint(debug, "Collecting all object first-seen dates...")
+
+	// Get all objects in chronological order
+	commandString = "git rev-list --all --objects --reverse"
+	cmd = exec.Command(shellToUse(), "-c", fmt.Sprintf("cd %s && %s", repositoryPath, commandString))
+	output, err = cmd.Output()
+	if err != nil {
+		return nil, err
+	}
+
+	lines = strings.Split(string(output), "\n")
+	currentCommitTime = time.Time{} // Reset
+
+	for _, line := range lines {
+		line = strings.TrimSpace(line)
+		if line == "" {
+			continue
+		}
+
+		fields := strings.Fields(line)
+		if len(fields) == 0 {
+			continue
+		}
+
+		objectID := fields[0]
+
+		// Check if this is a commit (we have its timestamp)
+		if timestamp, exists := commitTimestamps[objectID]; exists {
+			// This is a commit object
+			if _, seen := firstSeen[objectID]; !seen {
+				firstSeen[objectID] = timestamp
+			}
+			currentCommitTime = timestamp
+		} else {
+			// This is a tree or blob object - use the current commit's timestamp
+			// Only record if we haven't seen this object before
+			if _, seen := firstSeen[objectID]; !seen {
+				if !currentCommitTime.IsZero() {
+					firstSeen[objectID] = currentCommitTime
+				}
 			}
 		}
 	}
