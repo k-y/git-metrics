@@ -11,6 +11,7 @@ import (
 
 	"github.com/spf13/pflag"
 
+	"git-metrics/pkg/cache"
 	"git-metrics/pkg/display/sections"
 	"git-metrics/pkg/git"
 	"git-metrics/pkg/models"
@@ -36,6 +37,8 @@ func main() {
 	showHelp := pflag.BoolP("help", "h", false, "Display this help message")
 	dailyStart := pflag.String("daily-start", "", "Start date for daily metrics (YYYY-MM-DD)")
 	dailyEnd := pflag.String("daily-end", "", "End date for daily metrics (YYYY-MM-DD)")
+	buildCache := pflag.String("build-cache", "", "Build object cache and save to file")
+	useCache := pflag.String("use-cache", "", "Use cached object data instead of querying Git")
 
 	pflag.Parse()
 
@@ -84,6 +87,35 @@ func main() {
 	// Set progress visibility based on --no-progress flag and output destination
 	// Automatically disable progress when output is piped to a file or redirected
 	progress.ShowProgress = !*noProgress && utils.IsTerminal(os.Stdout)
+
+	// Handle cache building mode
+	if *buildCache != "" {
+		fmt.Println("Building object cache...")
+		fmt.Printf("Repository: %s\n", *repositoryPath)
+		fmt.Printf("Output file: %s\n", *buildCache)
+		fmt.Println()
+
+		objectCache, err := cache.BuildCache(*repositoryPath, debug)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error building cache: %v\n", err)
+			os.Exit(1)
+		}
+
+		if err := cache.SaveCache(objectCache, *buildCache, debug); err != nil {
+			fmt.Fprintf(os.Stderr, "Error saving cache: %v\n", err)
+			os.Exit(1)
+		}
+
+		fmt.Printf("\n✓ Cache built successfully with %s objects\n", utils.FormatNumber(len(objectCache.Objects)))
+		fmt.Printf("  Build time: %s\n", objectCache.BuildTime.Format("2006-01-02 15:04:05"))
+
+		// Show cache file size
+		if fileInfo, err := os.Stat(*buildCache); err == nil {
+			fmt.Printf("  File size: %s\n", utils.FormatSize(fileInfo.Size()))
+		}
+
+		os.Exit(0)
+	}
 
 	if !requirements.CheckRequirements() {
 		fmt.Println("\nRequirements not met. Please install listed dependencies above.")
@@ -230,11 +262,26 @@ func main() {
 		fmt.Printf("Date range: %s to %s\n", dailyStartTime.Format("2006-01-02"), dailyEndTime.Format("2006-01-02"))
 		fmt.Println()
 
-		// Calculate daily statistics
-		dailyStats, err := git.GetDailyStats(dailyStartTime, dailyEndTime, debug)
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error calculating daily statistics: %v\n", err)
-			os.Exit(1)
+		var dailyStats models.GrowthStatistics
+
+		// Check if we should use cache
+		if *useCache != "" {
+			fmt.Printf("Using cache: %s\n\n", *useCache)
+			objectCache, err := cache.LoadCache(*useCache, debug)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error loading cache: %v\n", err)
+				os.Exit(1)
+			}
+
+			dailyStats = objectCache.QueryDateRange(dailyStartTime, dailyEndTime, debug)
+		} else {
+			// Calculate daily statistics from Git
+			var err error
+			dailyStats, err = git.GetDailyStats(dailyStartTime, dailyEndTime, debug)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error calculating daily statistics: %v\n", err)
+				os.Exit(1)
+			}
 		}
 
 		// Display results

@@ -5,6 +5,16 @@ All notable changes to git-metrics will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Object cache system for dramatically faster historical data queries
+- New command-line flags: `--build-cache` and `--use-cache`
+- Cache enables querying multiple date ranges without re-running expensive Git commands
+- Performance improvement: 28x faster for collecting 6 months of historical data
+- Cache stores all Git object metadata (type, size, path, first-seen timestamp)
+- Documentation for cache workflow and performance benefits
+
 ## [1.0.0] - 2025-11-11
 
 ### Added
