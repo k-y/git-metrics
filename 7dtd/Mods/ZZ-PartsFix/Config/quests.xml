@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configs>
+  <!--
+    FIX: RareSamples quest chain XUi "commonrewards" binding failure.
+
+    Root cause: QuestRewardsWindow.commonrewards fails to build a reward string
+    when any reward is type="LootItem" for a Quest-class item (Action0 Class="Quest").
+    The 98-AECxProjectZ_Tweaks mod already applied the identical fix to the
+    startQuest1-4 and BetterWeapon chains but omitted the RareSamples chain.
+
+    Fix: convert projectZResearchDossier2-10 rewards from LootItem to Item.
+    These are quest-granting book items identical in structure to note2_startQuest
+    and BetterWeapon_* which are already patched by the upstream 98 mod.
+    Bundle/resource rewards (ImpModsBundle, UniqueModsBundle, SkillPointBundle5,
+    resourceAECMutationSampleT1) are not Quest-class and are left unchanged.
+  -->
+  <set xpath="/quests/quest[@id='RareSamples1']/reward[@id='projectZResearchDossier2' and @type='LootItem']/@type">Item</set>
+  <set xpath="/quests/quest[@id='RareSamples2']/reward[@id='projectZResearchDossier3' and @type='LootItem']/@type">Item</set>
+  <set xpath="/quests/quest[@id='RareSamples3']/reward[@id='projectZResearchDossier4' and @type='LootItem']/@type">Item</set>
+  <set xpath="/quests/quest[@id='RareSamples4']/reward[@id='projectZResearchDossier5' and @type='LootItem']/@type">Item</set>
+  <set xpath="/quests/quest[@id='RareSamples5']/reward[@id='projectZResearchDossier6' and @type='LootItem']/@type">Item</set>
+  <set xpath="/quests/quest[@id='RareSamples6']/reward[@id='projectZResearchDossier7' and @type='LootItem']/@type">Item</set>
+  <set xpath="/quests/quest[@id='RareSamples7']/reward[@id='projectZResearchDossier8' and @type='LootItem']/@type">Item</set>
+  <set xpath="/quests/quest[@id='RareSamples8']/reward[@id='projectZResearchDossier9' and @type='LootItem']/@type">Item</set>
+  <set xpath="/quests/quest[@id='RareSamples9']/reward[@id='projectZResearchDossier10' and @type='LootItem']/@type">Item</set>
+</configs>

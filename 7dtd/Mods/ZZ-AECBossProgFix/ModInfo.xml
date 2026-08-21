@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <Name value="ZZ-AECBossProgFix" />
+  <DisplayName value="AEC Boss Progression Fix" />
+  <Description value="Adds bigBoss tag to all AEC boss entities and miniboss/mediumBoss tags to AEC combat minions, so they count toward PZ BetterWeapon quest kill quotas (bigBoss=25, miniboss=50). Built against AEC v3.1.2." />
+  <Author value="" />
+  <Version value="1.0.0" />
+</xml>

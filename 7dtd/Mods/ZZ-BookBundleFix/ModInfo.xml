@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <Name value="ZZ-BookBundleFix" />
+  <DisplayName value="Book Bundle Fix" />
+  <Description value="Adds missing Sledge Saga books to all T1-T5 quest reward book bundle random pools (vanilla omission)" />
+  <Author value="" />
+  <Version value="1.0.0" />
+</xml>

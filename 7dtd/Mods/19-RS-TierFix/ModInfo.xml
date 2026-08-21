@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <Name value="19-RS-TierFix" />
+  <DisplayName value="RS Tier Fix" />
+  <Description value="Defaults trader quest tab to T5 for all players by counting start quests toward tier progression" />
+  <Author value="" />
+  <Version value="1.0.0" />
+</xml>

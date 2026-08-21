@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <Name value="ZZ-PartsFix" />
+  <DisplayName value="Parts Fix" />
+  <Description value="Fixes RareSamples quest chain XUi commonrewards binding failure caused by type=LootItem rewards for Quest-class items (vanilla omission — AECxProjectZ_Tweaks applied the same fix to other chains but missed RareSamples)" />
+  <Author value="" />
+  <Version value="1.0.0" />
+</xml>

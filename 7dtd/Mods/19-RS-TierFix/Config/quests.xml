@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configs>
+  <!--
+    FIX: Trader quest tab defaults to T1 for all players on a PZ-dominant server.
+
+    Root cause: The game computes trader tier as floor(completed_tier_quests / quests_per_tier) + 1.
+    All PZ/AEC quests have add_to_tier_complete="false", so players who never run vanilla
+    trader quests have a count of zero and are permanently shown T1 at the trader.
+
+    Fix:
+      1. Set quests_per_tier="1" so each qualifying quest advances one full tier.
+      2. Mark startQuest1-4 as tier-counting. These four quests auto-complete within
+         the first ~30 seconds of any new game (no objectives, repeatable=false),
+         placing every player at T5 immediately on first login.
+         Veterans get the retroactive recalc on their next login.
+
+    Test locally first:
+      - Drop this modlet in your client Mods folder
+      - Start a single-player game (start quests auto-complete instantly)
+      - Open any trader and confirm the quest tab opens at T5
+  -->
+  <set xpath="/quests/@quests_per_tier">1</set>
+  <set xpath="/quests/quest[@id='startQuest1']/@add_to_tier_complete">true</set>
+  <set xpath="/quests/quest[@id='startQuest2']/@add_to_tier_complete">true</set>
+  <set xpath="/quests/quest[@id='startQuest3']/@add_to_tier_complete">true</set>
+  <set xpath="/quests/quest[@id='startQuest4']/@add_to_tier_complete">true</set>
+</configs>

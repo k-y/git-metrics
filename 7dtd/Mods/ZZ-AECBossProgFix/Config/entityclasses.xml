@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ZZ-AECBossProgFix: Adds bigBoss to AEC boss entities and miniboss/mediumBoss to AEC combat minions.
+     Targets: BetterWeaponLastHunt1 (miniboss x50) and BetterWeaponLastHunt2 (bigBoss x25).
+     Built against AEC_AIO_BOSS_EXTREME_EDITION v3.1.2. -->
+<configs>
+
+  <!-- ================================================================ -->
+  <!-- AEC BOSS ENTITIES: add bigBoss tag                               -->
+  <!-- These all carry "boss" but not "bigBoss", so they are invisible  -->
+  <!-- to the BetterWeaponLastHunt2 objective (target_tags="bigBoss").  -->
+  <!-- ================================================================ -->
+
+  <set xpath="/entity_classes/entity_class[@name='AECDoomlordDemolishmanBoss']/property[@name='Tags']/@value">entity,zombie,walker,boss,doomlord,doomlordBoss,bigBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECElectricDemonRunnerBoss']/property[@name='Tags']/@value">entity,zombie,walker,hostile,burnt,boss,electricdemonBoss,electricdemon,aec,AECElectricDemonRunnerBoss,bigBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECTheExecutionerBoss']/property[@name='Tags']/@value">entity,zombie,walker,hostile,boss,executionerBoss,executioner,aec,AECTheExecutionerBoss,bigBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECExplosiveEagleBoss']/property[@name='Tags']/@value">entity,animal,zombie,zombieAnimal,hostile,radiated,vulture,boss,explosiveeagleBoss,explosiveeagle,aec,AECExplosiveEagleBoss,bigBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECGhostBoss']/property[@name='Tags']/@value">entity,zombie,feral,radiated,allbiome,hostile,aec,boss,ghost,ghostBoss,AECGhostBoss,bigBoss</set>
+
+  <!-- AECHammerGuardian uses "guardian" naming but has boss tag -->
+  <set xpath="/entity_classes/entity_class[@name='AECHammerGuardian']/property[@name='Tags']/@value">entity,zombie,walker,hostile,boss,guardian,hammer,hammerguardianBoss,hammerguardian,aec,AECHammerGuardian,bigBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECHellskyliBoss']/property[@name='Tags']/@value">entity,zombie,walker,burnt,vulture,hostile,boss,hellskyliBoss,hellskyli,aec,AECHellskyliBoss,bigBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECMykirBoss']/property[@name='Tags']/@value">entity,zombie,spider,allbiome,hostile,boss,mykirBoss,mykir,aec,AECMykirBoss,bigBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECPartyBeachBoss']/property[@name='Tags']/@value">entity,zombie,walker,hostile,boss,partybeachBoss,partybeach,aec,AECPartyBeachBoss,bigBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECRockbreakerBoss']/property[@name='Tags']/@value">entity,zombie,walker,hostile,boss,rockbreakerBoss,rockbreaker,aec,AECRockbreakerBoss,bigBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECSingerieBoss']/property[@name='Tags']/@value">entity,zombie,walker,hostile,boss,singerie,singerieBoss,aec,AECSingerieBoss,bigBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECSirenHeadBoss']/property[@name='Tags']/@value">entity,zombie,walker,hostile,boss,sirenhead,sirenheadBoss,aec,AECSirenHeadBoss,bigBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECTheDruidBoss']/property[@name='Tags']/@value">entity,zombie,walker,hostile,boss,druidBoss,druid,aec,AECTheDruidBoss,bigBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECTheMechanicianBoss']/property[@name='Tags']/@value">entity,zombie,walker,hostile,boss,mechanicianBoss,mechanician,biker,aec,AECTheMechanicianBoss,bigBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECTheWitchAngelBoss']/property[@name='Tags']/@value">entity,zombie,walker,feral,radiated,hostile,boss,witchBoss,witch,aec,vulture,bigBoss</set>
+
+  <!-- AECMushroomBoss is missing even the generic "boss" tag in AEC source -->
+  <set xpath="/entity_classes/entity_class[@name='AECMushroomBoss']/property[@name='Tags']/@value">entity,zombie,boss,mushroomBoss,bigBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECHeadlessBoss']/property[@name='Tags']/@value">entity,zombie,walker,allbiome,hostile,boss,headless,headlessBoss,aec,AECHeadlessBoss,bigBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECTheArcherBoss']/property[@name='Tags']/@value">entity,zombie,walker,boss,archer,archerBoss,bigBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECSheriffBoss']/property[@name='Tags']/@value">entity,zombie,walker,hostile,aec,boss,sheriff,sheriffBoss,AECSheriffBoss,bigBoss</set>
+
+  <!-- ================================================================ -->
+  <!-- AEC COMBAT MINIONS: add miniboss + mediumBoss tags               -->
+  <!-- These are spawned during AEC boss encounters. Adding miniboss    -->
+  <!-- makes them count for BetterWeaponLastHunt1 (target_tags=miniboss,-->
+  <!-- needs 50 kills). mediumBoss is added for PZ tag-tier consistency.-->
+  <!-- Note: bossAECDumdum and RunningKamikaze already carry miniboss.  -->
+  <!-- ================================================================ -->
+
+  <set xpath="/entity_classes/entity_class[@name='AECDoomlordDemolishmanMinion']/property[@name='Tags']/@value">entity,zombie,walker,hostile,doomlord,doomlordMinion,minion,miniboss,mediumBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECDumdumMinion']/property[@name='Tags']/@value">entity,zombie,walker,hostile,AECDumdumMinion,lumberjack,miniboss,mediumBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECExecutionerMinion']/property[@name='Tags']/@value">entity,zombie,walker,hostile,minion,executionerMinion,executioner,aec,AECExecutionerMinion,arlene,miniboss,mediumBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECSingerieMinion']/property[@name='Tags']/@value">entity,zombie,walker,hostile,minion,singerie,singerieMinion,aec,AECSingerieMinion,miniboss,mediumBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECArcherMinionBow']/property[@name='Tags']/@value">entity,zombie,walker,hostile,archer,minion,archerMinion,archerBowMinion,miniboss,mediumBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECArcherMinionExplosiveCrossbow']/property[@name='Tags']/@value">entity,zombie,walker,hostile,archer,minion,archerMinion,archerExplosiveMinion,miniboss,mediumBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECArcherMinionFlamingCrossbow']/property[@name='Tags']/@value">entity,zombie,walker,hostile,archer,minion,archerMinion,archerFlamingMinion,miniboss,mediumBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECArcherMinionCrossbow']/property[@name='Tags']/@value">entity,zombie,crawler,hostile,archer,minion,archerMinion,archerCrossbowMinion,miniboss,mediumBoss</set>
+
+  <set xpath="/entity_classes/entity_class[@name='AECSheriffWolfMinionBase']/property[@name='Tags']/@value">entity,animal,hostile,aec,wolf,minion,sheriff,sheriffMinion,AECSheriffWolfMinion,miniboss,mediumBoss</set>
+
+</configs>
