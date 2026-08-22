@@ -2,8 +2,12 @@
 <!--
   PoiLootVacuum client-side config.
   CollectKey : any UnityEngine.KeyCode name (e.g. F9, F10, KeypadPlus)
-  Radius     : collection radius in metres
+  Radius     : collection radius in metres (3D sphere)
   Shift+CollectKey runs a dry-run scan without moving items.
+
+  TagMappings: add extra item tags to a category without recompiling.
+  Valid categories: Weapon, Tool, Armor, Ammo, Food, Medicine, Book, Component, Resource, Misc
+  Default tags are always active; entries here are additive.
 -->
 <PoiLootVacuum>
   <CollectKey value="F10" />
@@ -19,4 +23,12 @@
   <PickupComponents value="true" />
   <PickupResources value="true" />
   <PickupMisc value="true" />
+
+  <!--
+    Add mod-specific tags here. Examples:
+    <Tag name="myModWeapon" category="Weapon" />
+    <Tag name="myModJunk"   category="Resource" />
+  -->
+  <TagMappings>
+  </TagMappings>
 </PoiLootVacuum>

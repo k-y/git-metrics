@@ -1,32 +1,55 @@
+using System.Collections.Generic;
+
 namespace PoiLootVacuum
 {
     public enum LootCategory { Weapon, Tool, Armor, Ammo, Food, Medicine, Book, Component, Resource, Misc }
 
     public static class LootFilter
     {
-        static readonly FastTags<TagGroup.Global> T_Weapon    = FastTags<TagGroup.Global>.Parse("weapon");
-        static readonly FastTags<TagGroup.Global> T_Tool      = FastTags<TagGroup.Global>.Parse("tool");
-        static readonly FastTags<TagGroup.Global> T_Armor     = FastTags<TagGroup.Global>.Parse("armor");
-        static readonly FastTags<TagGroup.Global> T_Ammo      = FastTags<TagGroup.Global>.Parse("ammo");
-        static readonly FastTags<TagGroup.Global> T_Food      = FastTags<TagGroup.Global>.Parse("food");
-        static readonly FastTags<TagGroup.Global> T_Medicine  = FastTags<TagGroup.Global>.Parse("medical");
-        static readonly FastTags<TagGroup.Global> T_Book      = FastTags<TagGroup.Global>.Parse("books,csm");
-        static readonly FastTags<TagGroup.Global> T_Component = FastTags<TagGroup.Global>.Parse("component");
-        static readonly FastTags<TagGroup.Global> T_Resource  = FastTags<TagGroup.Global>.Parse("resource,junk");
+        // Default tag-to-category mappings; extended at startup from config XML.
+        static readonly Dictionary<LootCategory, List<string>> TagMap = new Dictionary<LootCategory, List<string>>
+        {
+            { LootCategory.Weapon,    new List<string> { "weapon" } },
+            { LootCategory.Tool,      new List<string> { "tool" } },
+            { LootCategory.Armor,     new List<string> { "armor" } },
+            { LootCategory.Ammo,      new List<string> { "ammo" } },
+            { LootCategory.Food,      new List<string> { "food" } },
+            { LootCategory.Medicine,  new List<string> { "medical" } },
+            { LootCategory.Book,      new List<string> { "books", "csm" } },
+            { LootCategory.Component, new List<string> { "component" } },
+            { LootCategory.Resource,  new List<string> { "resource", "junk" } },
+        };
+
+        // Compiled from TagMap; rebuilt by BuildTagSets() after any AddTag call.
+        static Dictionary<LootCategory, FastTags<TagGroup.Global>> _compiled;
+
+        static LootFilter() => BuildTagSets();
+
+        public static void AddTag(string tagName, LootCategory category)
+        {
+            if (!TagMap.TryGetValue(category, out var list))
+            {
+                list = new List<string>();
+                TagMap[category] = list;
+            }
+            if (!list.Contains(tagName))
+                list.Add(tagName);
+            BuildTagSets();
+        }
+
+        static void BuildTagSets()
+        {
+            _compiled = new Dictionary<LootCategory, FastTags<TagGroup.Global>>();
+            foreach (var kvp in TagMap)
+                _compiled[kvp.Key] = FastTags<TagGroup.Global>.Parse(string.Join(",", kvp.Value));
+        }
 
         public static LootCategory Classify(ItemClass ic)
         {
             if (ic == null) return LootCategory.Misc;
             var t = ic.ItemTags;
-            if (t.Test_AnySet(T_Weapon))    return LootCategory.Weapon;
-            if (t.Test_AnySet(T_Tool))      return LootCategory.Tool;
-            if (t.Test_AnySet(T_Armor))     return LootCategory.Armor;
-            if (t.Test_AnySet(T_Ammo))      return LootCategory.Ammo;
-            if (t.Test_AnySet(T_Food))      return LootCategory.Food;
-            if (t.Test_AnySet(T_Medicine))  return LootCategory.Medicine;
-            if (t.Test_AnySet(T_Book))      return LootCategory.Book;
-            if (t.Test_AnySet(T_Component)) return LootCategory.Component;
-            if (t.Test_AnySet(T_Resource))  return LootCategory.Resource;
+            foreach (var kvp in _compiled)
+                if (t.Test_AnySet(kvp.Value)) return kvp.Key;
             return LootCategory.Misc;
         }
 
@@ -53,7 +76,6 @@ namespace PoiLootVacuum
             }
         }
 
-        // Returns true if the player has already read this book.
         // Stubbed — returns false conservatively so all books are picked up.
         public static bool IsBookRead(ItemValue iv, EntityPlayer player) => false;
     }

@@ -45,6 +45,20 @@ namespace PoiLootVacuum
                 Config.PickupComponents = Bool(root, "PickupComponents", Config.PickupComponents);
                 Config.PickupResources  = Bool(root, "PickupResources",  Config.PickupResources);
                 Config.PickupMisc       = Bool(root, "PickupMisc",       Config.PickupMisc);
+
+                var mappings = root.SelectSingleNode("TagMappings");
+                if (mappings != null)
+                {
+                    foreach (XmlNode node in mappings.ChildNodes)
+                    {
+                        if (node.NodeType != XmlNodeType.Element) continue;
+                        string tagName  = node.Attributes?["name"]?.Value;
+                        string catName  = node.Attributes?["category"]?.Value;
+                        if (tagName == null || catName == null) continue;
+                        if (System.Enum.TryParse<LootCategory>(catName, true, out var cat))
+                            LootFilter.AddTag(tagName, cat);
+                    }
+                }
             }
             catch { }
         }
