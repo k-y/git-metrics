@@ -40,7 +40,7 @@ namespace PoiLootVacuum
 
             var pos = player.position;
             int playerId = player.entityId;
-            var lm = world.GetLootManager();
+            var lm = GameManager.Instance.lootManager;
 
             // Collect destination crates (player-placed, not in use)
             var dests = new List<ITileEntityLootable>();
@@ -108,10 +108,7 @@ namespace PoiLootVacuum
                     rolled++;
                 }
                 if (TransferItems(bag.items, dests, player, ref stacks))
-                {
-                    bag.SetModified();
                     eBags++;
-                }
             });
 
             foreach (var d in dests) d.SetModified();
@@ -218,8 +215,9 @@ namespace PoiLootVacuum
             try
             {
                 GameManager.Instance.ChatMessageServer(
-                    null, EChatType.Whisper, -1, text, "", false,
-                    new List<int> { ci.entityId });
+                    null, EChatType.Whisper, -1, text,
+                    new List<int> { ci.entityId },
+                    EMessageSender.Server);
             }
             catch { }
         }

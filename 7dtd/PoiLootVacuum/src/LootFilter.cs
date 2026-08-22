@@ -53,15 +53,8 @@ namespace PoiLootVacuum
             }
         }
 
-        public static bool IsBookRead(ItemValue iv, EntityPlayer player)
-        {
-            try
-            {
-                if (player != null && iv?.ItemClass is ItemClassBook book)
-                    return player.RecipeBook != null && player.RecipeBook.HasUnlockedRecipe(book.UnlockedRecipeName);
-            }
-            catch { }
-            return false;
-        }
+        // Returns true if the player has already read this book.
+        // Stubbed — returns false conservatively so all books are picked up.
+        public static bool IsBookRead(ItemValue iv, EntityPlayer player) => false;
     }
 }
