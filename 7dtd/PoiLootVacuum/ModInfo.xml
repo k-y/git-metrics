@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <Name value="PoiLootVacuum" />
+  <DisplayName value="POI Loot Vacuum" />
+  <Description value="Console command (cl / collectloot) collects all nearby POI containers and entity bags into player-placed crates. Supports dry-run scan mode. No server log output." />
+  <Author value="" />
+  <Version value="1.0.0" />
+</xml>
