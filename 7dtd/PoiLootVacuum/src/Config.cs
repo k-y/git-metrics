@@ -4,7 +4,7 @@ namespace PoiLootVacuum
 {
     public static class Config
     {
-        public static KeyCode CollectKey    = KeyCode.F9;
+        public static KeyCode CollectKey    = KeyCode.F10;
         public static float   Radius        = 40f;
         public static bool    PickupWeapons    = true;
         public static bool    PickupTools      = true;

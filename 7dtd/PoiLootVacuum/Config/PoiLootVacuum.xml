@@ -6,7 +6,7 @@
   Shift+CollectKey runs a dry-run scan without moving items.
 -->
 <PoiLootVacuum>
-  <CollectKey value="F9" />
+  <CollectKey value="F10" />
   <Radius value="40" />
   <PickupWeapons value="true" />
   <PickupTools value="true" />
