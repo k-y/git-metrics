@@ -15,10 +15,22 @@ namespace PoiLootVacuum
             if (player == null) return;
 
             bool scan = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
-            Collect(world, player, Config.Radius, scan);
+            if (scan)
+            {
+                Collect(world, player, Config.Radius, true);
+            }
+            else
+            {
+                var cm = SingletonMonoBehaviour<ConnectionManager>.Instance;
+                if (cm == null || cm.IsServer)
+                    Collect(world, player, Config.Radius, false);
+                else
+                    cm.SendToServer(NetPackageManager.GetPackage<NetPackagePoiVacuum>()
+                        .Setup(player.entityId, Config.Radius), false);
+            }
         }
 
-        static void Collect(World world, EntityPlayerLocal player, float radius, bool scanOnly)
+        internal static void Collect(World world, EntityPlayer player, float radius, bool scanOnly)
         {
             var pos = player.position;
             int playerId = player.entityId;
@@ -179,12 +191,12 @@ namespace PoiLootVacuum
             Tip(player, $"Collected {stacks} stacks ({wContainers} containers, {eBags} bags, {rolled} rolls) → {destLabel}");
         }
 
-        static void Tip(EntityPlayerLocal player, string text)
+        static void Tip(EntityPlayer player, string text)
         {
             try { GameManager.ShowTooltipMP(player, text, ""); } catch { }
         }
 
-        static bool TransferItems(ItemStack[] src, Bag droneBag, List<ITileEntityLootable> dests, EntityPlayerLocal player, ref int stacks)
+        static bool TransferItems(ItemStack[] src, Bag droneBag, List<ITileEntityLootable> dests, EntityPlayer player, ref int stacks)
         {
             var mode = Config.Destination;
             bool any = false;
@@ -255,7 +267,7 @@ namespace PoiLootVacuum
             return any;
         }
 
-        static int MoveToInventory(ref ItemStack stack, EntityPlayerLocal player)
+        static int MoveToInventory(ref ItemStack stack, EntityPlayer player)
         {
             try
             {
