@@ -34,6 +34,12 @@ namespace PoiLootVacuum
                 if (rad != null && float.TryParse(rad, out float r))
                     Config.Radius = r;
 
+                Config.PickupAll = Bool(root, "PickupAll", Config.PickupAll);
+
+                string dest = Attr(root, "Destination");
+                if (dest != null && System.Enum.TryParse<DestinationMode>(dest, true, out var dm))
+                    Config.Destination = dm;
+
                 Config.PickupWeapons    = Bool(root, "PickupWeapons",    Config.PickupWeapons);
                 Config.PickupTools      = Bool(root, "PickupTools",      Config.PickupTools);
                 Config.PickupArmor      = Bool(root, "PickupArmor",      Config.PickupArmor);

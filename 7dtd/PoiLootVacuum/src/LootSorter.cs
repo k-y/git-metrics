@@ -11,7 +11,7 @@ namespace PoiLootVacuum
         public static int MoveStack(ref ItemStack stack, ITileEntityLootable dest)
         {
             if (stack == null || stack.IsEmpty()) return 0;
-            int max = MaxStack(stack.itemValue.ItemClass);
+            int max = GetMaxStack(stack.itemValue.ItemClass);
             int moved = 0;
 
             // Merge with existing partial stacks
@@ -41,7 +41,7 @@ namespace PoiLootVacuum
             return moved;
         }
 
-        static int MaxStack(ItemClass ic)
+        public static int GetMaxStack(ItemClass ic)
         {
             try { return ic?.Stacknumber.Value ?? 1; }
             catch { return 1; }

@@ -58,6 +58,7 @@ namespace PoiLootVacuum
             if (stack == null || stack.IsEmpty()) return false;
             var ic = stack.itemValue?.ItemClass;
             if (ic == null) return false;
+            if (Config.PickupAll) return true;
             switch (Classify(ic))
             {
                 case LootCategory.Weapon:    return Config.PickupWeapons;

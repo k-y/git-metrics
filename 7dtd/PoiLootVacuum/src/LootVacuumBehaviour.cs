@@ -23,16 +23,26 @@ namespace PoiLootVacuum
             var pos = player.position;
             int playerId = player.entityId;
             var lm = GameManager.Instance.lootManager;
+            var mode = Config.Destination;
+
+            bool useCrates    = mode != DestinationMode.InventoryOnly;
+            bool useInventory = mode != DestinationMode.InventoryOnly
+                                    ? mode != DestinationMode.CrateOnly
+                                    : true;
 
             var dests = new List<ITileEntityLootable>();
-            ForEachTileEntity(world, pos, radius, te =>
+            if (useCrates)
             {
-                if (!(te is TileEntityComposite tec) || !tec.PlayerPlaced) return;
-                var loot = tec.GetFeature<ITileEntityLootable>();
-                if (loot != null && !loot.IsUserAccessing()) dests.Add(loot);
-            });
+                ForEachTileEntity(world, pos, radius, te =>
+                {
+                    if (!(te is TileEntityComposite tec) || !tec.PlayerPlaced) return;
+                    var loot = tec.GetFeature<ITileEntityLootable>();
+                    if (loot != null && !loot.IsUserAccessing()) dests.Add(loot);
+                });
+            }
 
-            if (dests.Count == 0)
+            bool cratesRequired = useCrates && !useInventory;
+            if (cratesRequired && dests.Count == 0)
             {
                 Tip(player, $"[CL] No player-placed crates within {radius:F0}m.");
                 return;
@@ -40,7 +50,7 @@ namespace PoiLootVacuum
 
             if (scanOnly)
             {
-                int wc = 0, eb = 0, free = 0;
+                int wc = 0, eb = 0, freeCrate = 0, freeInv = 0;
                 ForEachTileEntity(world, pos, radius, te =>
                 {
                     if (!(te is TileEntityComposite tec) || tec.PlayerPlaced) return;
@@ -50,8 +60,15 @@ namespace PoiLootVacuum
                 ForEachEntityBag(world, pos, radius, (bag, ent) => eb++);
                 foreach (var d in dests)
                     foreach (var slot in d.items)
-                        if (slot == null || slot.IsEmpty()) free++;
-                Tip(player, $"[Scan r={radius:F0}] {wc} containers + {eb} bags → {dests.Count} crates ({free} free slots)");
+                        if (slot == null || slot.IsEmpty()) freeCrate++;
+                if (useInventory)
+                    foreach (var slot in player.inventory.items)
+                        if (slot == null || slot.IsEmpty()) freeInv++;
+                string destInfo = mode == DestinationMode.CrateOnly      ? $"{dests.Count} crates ({freeCrate} free)"
+                                : mode == DestinationMode.InventoryOnly   ? $"inventory ({freeInv} free)"
+                                : mode == DestinationMode.InventoryThenCrate ? $"inventory ({freeInv} free) then {dests.Count} crates ({freeCrate} free)"
+                                :                                             $"{dests.Count} crates ({freeCrate} free) then inventory ({freeInv} free)";
+                Tip(player, $"[Scan r={radius:F0}] {wc} containers + {eb} bags → {destInfo}");
                 return;
             }
 
@@ -91,7 +108,11 @@ namespace PoiLootVacuum
             });
 
             foreach (var d in dests) d.SetModified();
-            Tip(player, $"Collected {stacks} stacks ({wContainers} containers, {eBags} bags, {rolled} rolls) → {dests.Count} crates");
+
+            string dest = mode == DestinationMode.CrateOnly    ? $"{dests.Count} crates"
+                        : mode == DestinationMode.InventoryOnly ? "inventory"
+                        :                                          "inventory + crates";
+            Tip(player, $"Collected {stacks} stacks ({wContainers} containers, {eBags} bags, {rolled} rolls) → {dest}");
         }
 
         static void Tip(EntityPlayerLocal player, string text)
@@ -99,17 +120,40 @@ namespace PoiLootVacuum
             try { GameManager.ShowTooltipMP(player, text, ""); } catch { }
         }
 
-        static bool TransferItems(ItemStack[] src, List<ITileEntityLootable> dests, EntityPlayer player, ref int stacks)
+        static bool TransferItems(ItemStack[] src, List<ITileEntityLootable> dests, EntityPlayerLocal player, ref int stacks)
         {
+            var mode = Config.Destination;
             bool any = false;
             for (int i = 0; i < src.Length; i++)
             {
                 var stack = src[i];
                 if (stack == null || stack.IsEmpty()) continue;
                 if (!LootFilter.ShouldPickUp(stack, player)) continue;
+
                 int moved = 0;
-                foreach (var dest in dests)
-                    moved += LootSorter.MoveStack(ref stack, dest);
+                switch (mode)
+                {
+                    case DestinationMode.CrateOnly:
+                        foreach (var dest in dests)
+                            moved += LootSorter.MoveStack(ref stack, dest);
+                        break;
+                    case DestinationMode.InventoryOnly:
+                        moved += MoveToInventory(ref stack, player);
+                        break;
+                    case DestinationMode.InventoryThenCrate:
+                        moved += MoveToInventory(ref stack, player);
+                        if (stack.count > 0)
+                            foreach (var dest in dests)
+                                moved += LootSorter.MoveStack(ref stack, dest);
+                        break;
+                    case DestinationMode.CrateThenInventory:
+                        foreach (var dest in dests)
+                            moved += LootSorter.MoveStack(ref stack, dest);
+                        if (stack.count > 0)
+                            moved += MoveToInventory(ref stack, player);
+                        break;
+                }
+
                 if (moved > 0)
                 {
                     src[i] = stack.IsEmpty() ? new ItemStack(ItemValue.None, 0) : stack;
@@ -118,6 +162,47 @@ namespace PoiLootVacuum
                 }
             }
             return any;
+        }
+
+        static int MoveToInventory(ref ItemStack stack, EntityPlayerLocal player)
+        {
+            try
+            {
+                var inv = player.inventory;
+                var slots = inv.items;
+                int max = LootSorter.GetMaxStack(stack.itemValue.ItemClass);
+                int moved = 0;
+
+                // Merge with existing partial stacks
+                for (int i = 0; i < slots.Length && stack.count > 0; i++)
+                {
+                    var slot = slots[i];
+                    if (slot == null || slot.IsEmpty()) continue;
+                    if (slot.itemValue.type != stack.itemValue.type) continue;
+                    int canAdd = max - slot.count;
+                    if (canAdd <= 0) continue;
+                    int toAdd = Math.Min(canAdd, stack.count);
+                    slots[i] = new ItemStack(slot.itemValue, slot.count + toAdd);
+                    stack = new ItemStack(stack.itemValue, stack.count - toAdd);
+                    moved += toAdd;
+                }
+
+                // Fill empty slots
+                for (int i = 0; i < slots.Length && stack.count > 0; i++)
+                {
+                    if (slots[i] != null && !slots[i].IsEmpty()) continue;
+                    int toAdd = Math.Min(max, stack.count);
+                    slots[i] = new ItemStack(stack.itemValue, toAdd);
+                    stack = new ItemStack(stack.itemValue, stack.count - toAdd);
+                    moved += toAdd;
+                }
+
+                if (moved > 0)
+                    inv.SetModified();
+
+                return moved;
+            }
+            catch { return 0; }
         }
 
         static void ForEachTileEntity(World world, Vector3 pos, float radius, Action<TileEntity> action)

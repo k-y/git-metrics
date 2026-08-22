@@ -12,6 +12,10 @@
 <PoiLootVacuum>
   <CollectKey value="F10" />
   <Radius value="40" />
+  <!-- Collect everything regardless of tag/category settings -->
+  <PickupAll value="false" />
+  <!-- Where to put items: CrateOnly | InventoryOnly | InventoryThenCrate | CrateThenInventory -->
+  <Destination value="CrateOnly" />
   <PickupWeapons value="true" />
   <PickupTools value="true" />
   <PickupArmor value="true" />
