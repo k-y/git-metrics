@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using UnityEngine;
 
 namespace PoiLootVacuum
@@ -55,16 +54,17 @@ namespace PoiLootVacuum
                              || mode == DestinationMode.DroneThenInventoryThenCrate
                              || mode == DestinationMode.DroneThenCrateThenInventory;
 
-            Bag droneBag = useDrone ? GetBag(GetPlayerDrone(world, pos)) : null;
+            Bag droneBag = useDrone ? GetPlayerDrone(world, playerId)?.bag : null;
 
             var dests = new List<ITileEntityLootable>();
             if (useCrates)
             {
                 ForEachTileEntity(world, pos, radius, te =>
                 {
-                    if (!(te is TileEntityComposite tec) || !tec.PlayerPlaced) return;
-                    var loot = tec.GetFeature<ITileEntityLootable>();
-                    if (loot != null && !loot.IsUserAccessing()) dests.Add(loot);
+                    ITileEntityLootable loot = default;
+                    if (!TileEntityExtensions.TryGetSelfOrFeature<ITileEntityLootable>((ITileEntity)(object)te, ref loot)) return;
+                    if (!loot.bPlayerStorage || loot.IsUserAccessing()) return;
+                    dests.Add(loot);
                 });
             }
 
@@ -89,9 +89,10 @@ namespace PoiLootVacuum
                 int wc = 0, eb = 0, freeCrate = 0, freeInv = 0, freeDrone = 0;
                 ForEachTileEntity(world, pos, radius, te =>
                 {
-                    if (!(te is TileEntityComposite tec) || tec.PlayerPlaced) return;
-                    var loot = tec.GetFeature<ITileEntityLootable>();
-                    if (loot != null && !string.IsNullOrEmpty(loot.lootListName) && !IsLocked(tec)) wc++;
+                    ITileEntityLootable loot = default;
+                    if (!TileEntityExtensions.TryGetSelfOrFeature<ITileEntityLootable>((ITileEntity)(object)te, ref loot)) return;
+                    if (loot.bPlayerStorage || string.IsNullOrEmpty(loot.lootListName)) return;
+                    if (!LockManager.Instance.IsLockedServer((ILockTarget)(object)loot, 0)) wc++;
                 });
                 ForEachEntityBag(world, pos, radius, (bag, ent) => eb++);
                 foreach (var d in dests)
@@ -106,33 +107,29 @@ namespace PoiLootVacuum
                         var s = player.inventory.GetItem(i);
                         if (s == null || s.IsEmpty()) freeInv++;
                     }
-                    var bagSlots = player.bag?.GetSlots();
-                    if (bagSlots != null)
-                        foreach (var s in bagSlots)
+                    if (player.bag?.items != null)
+                        foreach (var s in player.bag.items)
                             if (s == null || s.IsEmpty()) freeInv++;
                 }
-                if (droneBag != null)
-                {
-                    var ds = droneBag.GetSlots();
-                    if (ds != null)
-                        foreach (var s in ds)
-                            if (s == null || s.IsEmpty()) freeDrone++;
-                }
-                string droneLabel  = droneBag != null ? $"drone ({freeDrone} free)" : "drone (none)";
-                string invLabel    = $"inventory ({freeInv} free)";
-                string crateLabel  = $"{dests.Count} crates ({freeCrate} free)";
+                if (droneBag?.items != null)
+                    foreach (var s in droneBag.items)
+                        if (s == null || s.IsEmpty()) freeDrone++;
+
+                string droneLabel = droneBag != null ? $"drone ({freeDrone} free)" : "drone (none)";
+                string invLabel   = $"inventory ({freeInv} free)";
+                string crateLabel = $"{dests.Count} crates ({freeCrate} free)";
                 string destInfo;
                 switch (mode)
                 {
-                    case DestinationMode.CrateOnly:                  destInfo = crateLabel; break;
-                    case DestinationMode.InventoryOnly:              destInfo = invLabel; break;
-                    case DestinationMode.InventoryThenCrate:         destInfo = $"{invLabel} then {crateLabel}"; break;
-                    case DestinationMode.CrateThenInventory:         destInfo = $"{crateLabel} then {invLabel}"; break;
-                    case DestinationMode.DroneOnly:                  destInfo = droneLabel; break;
-                    case DestinationMode.DroneThenInventory:         destInfo = $"{droneLabel} then {invLabel}"; break;
-                    case DestinationMode.DroneThenCrate:             destInfo = $"{droneLabel} then {crateLabel}"; break;
-                    case DestinationMode.DroneThenInventoryThenCrate:destInfo = $"{droneLabel} then {invLabel} then {crateLabel}"; break;
-                    default:                                         destInfo = $"{droneLabel} then {crateLabel} then {invLabel}"; break;
+                    case DestinationMode.CrateOnly:                   destInfo = crateLabel; break;
+                    case DestinationMode.InventoryOnly:               destInfo = invLabel; break;
+                    case DestinationMode.InventoryThenCrate:          destInfo = $"{invLabel} then {crateLabel}"; break;
+                    case DestinationMode.CrateThenInventory:          destInfo = $"{crateLabel} then {invLabel}"; break;
+                    case DestinationMode.DroneOnly:                   destInfo = droneLabel; break;
+                    case DestinationMode.DroneThenInventory:          destInfo = $"{droneLabel} then {invLabel}"; break;
+                    case DestinationMode.DroneThenCrate:              destInfo = $"{droneLabel} then {crateLabel}"; break;
+                    case DestinationMode.DroneThenInventoryThenCrate: destInfo = $"{droneLabel} then {invLabel} then {crateLabel}"; break;
+                    default:                                          destInfo = $"{droneLabel} then {crateLabel} then {invLabel}"; break;
                 }
                 Tip(player, $"[Scan r={radius:F0}] {wc} containers + {eb} bags → {destInfo}");
                 return;
@@ -142,21 +139,30 @@ namespace PoiLootVacuum
 
             ForEachTileEntity(world, pos, radius, te =>
             {
-                if (!(te is TileEntityComposite tec) || tec.PlayerPlaced) return;
-                var loot = tec.GetFeature<ITileEntityLootable>();
-                if (loot == null || string.IsNullOrEmpty(loot.lootListName)) return;
-                if (IsLocked(tec) || loot.IsUserAccessing()) return;
+                ITileEntityLootable loot = default;
+                if (!TileEntityExtensions.TryGetSelfOrFeature<ITileEntityLootable>((ITileEntity)(object)te, ref loot)) return;
+                if (loot.bPlayerStorage || string.IsNullOrEmpty(loot.lootListName)) return;
+                if (loot.IsUserAccessing() || LockManager.Instance.IsLockedServer((ILockTarget)(object)loot, 0)) return;
 
-                if (!loot.bTouched && lm != null)
+                bool touched = loot.bTouched;
+                bool isEmpty = loot.IsEmpty();
+                if ((!touched && !isEmpty) || (touched && isEmpty)) return;
+
+                if (!touched && lm != null)
                 {
-                    try { lm.LootContainerOpened(loot, playerId, ((ITileEntity)loot).blockValue.Block.Tags); }
+                    try
+                    {
+                        BlockValue bv = ((ITileEntity)loot).blockValue;
+                        lm.LootContainerOpened(loot, playerId, bv.Block.Tags);
+                        loot.bTouched = true;
+                    }
                     catch { }
                     rolled++;
                 }
 
                 if (TransferItems(loot.items, droneBag, dests, player, ref stacks))
                 {
-                    loot.SetModified();
+                    ((ITileEntity)loot).SetModified();
                     wContainers++;
                 }
             });
@@ -173,7 +179,7 @@ namespace PoiLootVacuum
                     eBags++;
             });
 
-            foreach (var d in dests) d.SetModified();
+            foreach (var d in dests) ((ITileEntity)d).SetModified();
 
             string destLabel;
             switch (mode)
@@ -259,7 +265,7 @@ namespace PoiLootVacuum
 
                 if (moved > 0)
                 {
-                    src[i] = stack.IsEmpty() ? new ItemStack(ItemValue.None, 0) : stack;
+                    src[i] = stack.IsEmpty() ? ItemStack.Empty.Clone() : stack;
                     stacks++;
                     any = true;
                 }
@@ -313,52 +319,43 @@ namespace PoiLootVacuum
         {
             try
             {
-                var slots = bag.GetSlots();
-                if (slots == null) return 0;
-                int max = LootSorter.GetMaxStack(stack.itemValue.ItemClass);
-                int moved = 0;
-
-                for (int i = 0; i < slots.Length && stack.count > 0; i++)
+                int before = stack.count;
+                var moving = stack.Clone();
+                bag.TryStackItem(0, moving);
+                if (moving.count > 0)
                 {
-                    var slot = slots[i];
-                    if (slot == null || slot.IsEmpty()) continue;
-                    if (slot.itemValue.type != stack.itemValue.type) continue;
-                    int canAdd = max - slot.count;
-                    if (canAdd <= 0) continue;
-                    int toAdd = Math.Min(canAdd, stack.count);
-                    slots[i] = new ItemStack(slot.itemValue, slot.count + toAdd);
-                    stack = new ItemStack(stack.itemValue, stack.count - toAdd);
-                    moved += toAdd;
+                    var items = bag.items;
+                    for (int i = 0; i < items.Length && moving.count > 0; i++)
+                    {
+                        if (items[i] == null || items[i].IsEmpty())
+                        {
+                            bag.SetSlot(i, moving.Clone(), true);
+                            moving.count = 0;
+                        }
+                    }
                 }
-
-                for (int i = 0; i < slots.Length && stack.count > 0; i++)
+                int moved = before - moving.count;
+                if (moved > 0)
                 {
-                    if (slots[i] != null && !slots[i].IsEmpty()) continue;
-                    int toAdd = Math.Min(max, stack.count);
-                    slots[i] = new ItemStack(stack.itemValue, toAdd);
-                    stack = new ItemStack(stack.itemValue, stack.count - toAdd);
-                    moved += toAdd;
+                    bag.onBackpackChanged();
+                    stack = moving.count > 0 ? moving : ItemStack.Empty.Clone();
                 }
-
-                if (moved > 0) bag.SetSlots(slots);
                 return moved;
             }
             catch { return 0; }
         }
 
-        // Drone always follows the player; find it by type name within a close radius.
-        static Entity GetPlayerDrone(World world, Vector3 pos)
+        static EntityDrone GetPlayerDrone(World world, int playerId)
         {
             try
             {
-                float r2 = 20f * 20f;
-                foreach (var kvp in world.Entities.dict)
+                var entities = world.Entities.list;
+                for (int i = 0; i < entities.Count; i++)
                 {
-                    var e = kvp.Value;
-                    if (e == null) continue;
-                    if (e.GetType().Name.IndexOf("Drone", StringComparison.OrdinalIgnoreCase) < 0) continue;
-                    float dx = e.position.x - pos.x, dy = e.position.y - pos.y, dz = e.position.z - pos.z;
-                    if (dx * dx + dy * dy + dz * dz <= r2) return e;
+                    var drone = entities[i] as EntityDrone;
+                    if (drone == null) continue;
+                    var owner = drone.Owner;
+                    if (owner != null && owner.entityId == playerId) return drone;
                 }
             }
             catch { }
@@ -367,23 +364,23 @@ namespace PoiLootVacuum
 
         static void ForEachTileEntity(World world, Vector3 pos, float radius, Action<TileEntity> action)
         {
-            int x0 = Utils.Fastfloor((pos.x - radius) / 16f);
-            int x1 = Utils.Fastfloor((pos.x + radius) / 16f);
-            int z0 = Utils.Fastfloor((pos.z - radius) / 16f);
-            int z1 = Utils.Fastfloor((pos.z + radius) / 16f);
+            int cx0 = World.toChunkXZ(Utils.Fastfloor(pos.x - radius));
+            int cx1 = World.toChunkXZ(Utils.Fastfloor(pos.x + radius));
+            int cz0 = World.toChunkXZ(Utils.Fastfloor(pos.z - radius));
+            int cz1 = World.toChunkXZ(Utils.Fastfloor(pos.z + radius));
             float r2 = radius * radius;
-            for (int z = z0; z <= z1; z++)
-            for (int x = x0; x <= x1; x++)
+            for (int cz = cz0; cz <= cz1; cz++)
+            for (int cx = cx0; cx <= cx1; cx++)
             {
-                var chunk = ((WorldBase)world).GetChunkFromWorldPos(x * 16, 0, z * 16) as Chunk;
-                var list = chunk?.tileEntities?.list;
+                var chunk = ((WorldBase)world).GetChunkSync(cx, cz) as Chunk;
+                var list = chunk?.GetTileEntities().list;
                 if (list == null) continue;
                 for (int k = 0; k < list.Count; k++)
                 {
                     var te = list[k];
                     if (te == null) continue;
-                    var wp = te.ToWorldPos();
-                    float dx = wp.x - pos.x, dy = wp.y - pos.y, dz = wp.z - pos.z;
+                    var cp = te.ToWorldCenterPos();
+                    float dx = cp.x - pos.x, dy = cp.y - pos.y, dz = cp.z - pos.z;
                     if (dx * dx + dy * dy + dz * dz > r2) continue;
                     try { action(te); } catch { }
                 }
@@ -393,46 +390,18 @@ namespace PoiLootVacuum
         static void ForEachEntityBag(World world, Vector3 pos, float radius, Action<Bag, Entity> action)
         {
             float r2 = radius * radius;
-            foreach (var kvp in world.Entities.dict)
+            var entities = world.Entities.list;
+            for (int i = 0; i < entities.Count; i++)
             {
-                var ent = kvp.Value;
+                var ent = entities[i];
                 if (ent == null) continue;
                 if (!(ent is EntityLootContainer || ent is EntityBackpack || ent is EntitySupplyCrate)) continue;
                 float dx = ent.position.x - pos.x, dy = ent.position.y - pos.y, dz = ent.position.z - pos.z;
                 if (dx * dx + dy * dy + dz * dz > r2) continue;
-                var bag = GetBag(ent);
+                var bag = ent.bag;
                 if (bag == null) continue;
                 try { action(bag, ent); } catch { }
             }
-        }
-
-        static Bag GetBag(Entity e)
-        {
-            try
-            {
-                var t = e.GetType();
-                while (t != null)
-                {
-                    var f = t.GetField("bag", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Public);
-                    if (f != null) return f.GetValue(e) as Bag;
-                    t = t.BaseType;
-                }
-            }
-            catch { }
-            return null;
-        }
-
-        static bool IsLocked(TileEntityComposite tec)
-        {
-            try
-            {
-                var lk = tec.GetFeature<TEFeatureLockable>();
-                if (lk != null && lk.IsLocked()) return true;
-                var lp = tec.GetFeature<TEFeatureLockPickable>();
-                if (lp != null && lp.NeedsLockpicking()) return true;
-            }
-            catch { }
-            return false;
         }
     }
 }
