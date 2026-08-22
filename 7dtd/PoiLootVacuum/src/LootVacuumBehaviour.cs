@@ -62,8 +62,19 @@ namespace PoiLootVacuum
                     foreach (var slot in d.items)
                         if (slot == null || slot.IsEmpty()) freeCrate++;
                 if (useInventory)
-                    foreach (var slot in player.inventory.items)
-                        if (slot == null || slot.IsEmpty()) freeInv++;
+                {
+                    int ic = player.inventory.GetItemCount();
+                    for (int i = 0; i < ic; i++)
+                    {
+                        if (i == player.inventory.DUMMY_SLOT_IDX) continue;
+                        var s = player.inventory.GetItem(i);
+                        if (s == null || s.IsEmpty()) freeInv++;
+                    }
+                    var bagSlots = player.bag?.GetSlots();
+                    if (bagSlots != null)
+                        foreach (var s in bagSlots)
+                            if (s == null || s.IsEmpty()) freeInv++;
+                }
                 string destInfo = mode == DestinationMode.CrateOnly      ? $"{dests.Count} crates ({freeCrate} free)"
                                 : mode == DestinationMode.InventoryOnly   ? $"inventory ({freeInv} free)"
                                 : mode == DestinationMode.InventoryThenCrate ? $"inventory ({freeInv} free) then {dests.Count} crates ({freeCrate} free)"
@@ -168,37 +179,76 @@ namespace PoiLootVacuum
         {
             try
             {
-                var inv = player.inventory;
-                var slots = inv.items;
                 int max = LootSorter.GetMaxStack(stack.itemValue.ItemClass);
                 int moved = 0;
 
-                // Merge with existing partial stacks
-                for (int i = 0; i < slots.Length && stack.count > 0; i++)
+                // Toolbelt
+                var inv = player.inventory;
+                int invCount = inv.GetItemCount();
+
+                for (int i = 0; i < invCount && stack.count > 0; i++)
                 {
-                    var slot = slots[i];
+                    if (i == inv.DUMMY_SLOT_IDX) continue;
+                    var slot = inv.GetItem(i);
                     if (slot == null || slot.IsEmpty()) continue;
                     if (slot.itemValue.type != stack.itemValue.type) continue;
                     int canAdd = max - slot.count;
                     if (canAdd <= 0) continue;
                     int toAdd = Math.Min(canAdd, stack.count);
-                    slots[i] = new ItemStack(slot.itemValue, slot.count + toAdd);
+                    inv.SetItem(i, new ItemStack(slot.itemValue, slot.count + toAdd));
                     stack = new ItemStack(stack.itemValue, stack.count - toAdd);
                     moved += toAdd;
                 }
 
-                // Fill empty slots
-                for (int i = 0; i < slots.Length && stack.count > 0; i++)
+                for (int i = 0; i < invCount && stack.count > 0; i++)
                 {
-                    if (slots[i] != null && !slots[i].IsEmpty()) continue;
+                    if (i == inv.DUMMY_SLOT_IDX) continue;
+                    var slot = inv.GetItem(i);
+                    if (slot != null && !slot.IsEmpty()) continue;
                     int toAdd = Math.Min(max, stack.count);
-                    slots[i] = new ItemStack(stack.itemValue, toAdd);
+                    inv.SetItem(i, new ItemStack(stack.itemValue, toAdd));
                     stack = new ItemStack(stack.itemValue, stack.count - toAdd);
                     moved += toAdd;
                 }
 
-                if (moved > 0)
-                    inv.SetModified();
+                // Backpack
+                var bag = player.bag;
+                if (bag != null && stack.count > 0)
+                {
+                    var bagSlots = bag.GetSlots();
+                    if (bagSlots != null)
+                    {
+                        int movedToBag = 0;
+
+                        for (int i = 0; i < bagSlots.Length && stack.count > 0; i++)
+                        {
+                            var slot = bagSlots[i];
+                            if (slot == null || slot.IsEmpty()) continue;
+                            if (slot.itemValue.type != stack.itemValue.type) continue;
+                            int canAdd = max - slot.count;
+                            if (canAdd <= 0) continue;
+                            int toAdd = Math.Min(canAdd, stack.count);
+                            bagSlots[i] = new ItemStack(slot.itemValue, slot.count + toAdd);
+                            stack = new ItemStack(stack.itemValue, stack.count - toAdd);
+                            movedToBag += toAdd;
+                        }
+
+                        for (int i = 0; i < bagSlots.Length && stack.count > 0; i++)
+                        {
+                            if (bagSlots[i] != null && !bagSlots[i].IsEmpty()) continue;
+                            int toAdd = Math.Min(max, stack.count);
+                            bagSlots[i] = new ItemStack(stack.itemValue, toAdd);
+                            stack = new ItemStack(stack.itemValue, stack.count - toAdd);
+                            movedToBag += toAdd;
+                        }
+
+                        if (movedToBag > 0)
+                        {
+                            bag.SetSlots(bagSlots);
+                            moved += movedToBag;
+                        }
+                    }
+                }
 
                 return moved;
             }
