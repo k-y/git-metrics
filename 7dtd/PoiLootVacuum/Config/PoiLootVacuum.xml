@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PoiLootVacuum client-side config.
+  CollectKey : any UnityEngine.KeyCode name (e.g. F9, F10, KeypadPlus)
+  Radius     : collection radius in metres
+  Shift+CollectKey runs a dry-run scan without moving items.
+-->
+<PoiLootVacuum>
+  <CollectKey value="F9" />
+  <Radius value="40" />
+  <PickupWeapons value="true" />
+  <PickupTools value="true" />
+  <PickupArmor value="true" />
+  <PickupAmmo value="true" />
+  <PickupFood value="true" />
+  <PickupMedicine value="true" />
+  <PickupBooks value="true" />
+  <PickupReadBooks value="false" />
+  <PickupComponents value="true" />
+  <PickupResources value="true" />
+  <PickupMisc value="true" />
+</PoiLootVacuum>
