@@ -4,20 +4,20 @@ namespace PoiLootVacuum
 
     public static class LootFilter
     {
-        static readonly FastTags<Global> T_Weapon    = FastTags<Global>.Parse("weapon");
-        static readonly FastTags<Global> T_Tool      = FastTags<Global>.Parse("tool");
-        static readonly FastTags<Global> T_Armor     = FastTags<Global>.Parse("armor");
-        static readonly FastTags<Global> T_Ammo      = FastTags<Global>.Parse("ammo");
-        static readonly FastTags<Global> T_Food      = FastTags<Global>.Parse("food");
-        static readonly FastTags<Global> T_Medicine  = FastTags<Global>.Parse("medical");
-        static readonly FastTags<Global> T_Book      = FastTags<Global>.Parse("book");
-        static readonly FastTags<Global> T_Component = FastTags<Global>.Parse("component");
-        static readonly FastTags<Global> T_Resource  = FastTags<Global>.Parse("resource");
+        static readonly FastTags<TagGroup.Global> T_Weapon    = FastTags<TagGroup.Global>.Parse("weapon");
+        static readonly FastTags<TagGroup.Global> T_Tool      = FastTags<TagGroup.Global>.Parse("tool");
+        static readonly FastTags<TagGroup.Global> T_Armor     = FastTags<TagGroup.Global>.Parse("armor");
+        static readonly FastTags<TagGroup.Global> T_Ammo      = FastTags<TagGroup.Global>.Parse("ammo");
+        static readonly FastTags<TagGroup.Global> T_Food      = FastTags<TagGroup.Global>.Parse("food");
+        static readonly FastTags<TagGroup.Global> T_Medicine  = FastTags<TagGroup.Global>.Parse("medical");
+        static readonly FastTags<TagGroup.Global> T_Book      = FastTags<TagGroup.Global>.Parse("book");
+        static readonly FastTags<TagGroup.Global> T_Component = FastTags<TagGroup.Global>.Parse("component");
+        static readonly FastTags<TagGroup.Global> T_Resource  = FastTags<TagGroup.Global>.Parse("resource");
 
         public static LootCategory Classify(ItemClass ic)
         {
             if (ic == null) return LootCategory.Misc;
-            var t = ic.Tags;
+            var t = ic.ItemTags;
             if (t.Test_AnySet(T_Weapon))    return LootCategory.Weapon;
             if (t.Test_AnySet(T_Tool))      return LootCategory.Tool;
             if (t.Test_AnySet(T_Armor))     return LootCategory.Armor;
