@@ -61,8 +61,7 @@ namespace PoiLootVacuum
             {
                 ForEachTileEntity(world, pos, radius, te =>
                 {
-                    ITileEntityLootable loot = default;
-                    if (!TileEntityExtensions.TryGetSelfOrFeature<ITileEntityLootable>((ITileEntity)(object)te, ref loot)) return;
+                    if (!TileEntityExtensions.TryGetSelfOrFeature<ITileEntityLootable>((ITileEntity)(object)te, out var loot)) return;
                     if (!loot.bPlayerStorage || loot.IsUserAccessing()) return;
                     dests.Add(loot);
                 });
@@ -89,8 +88,7 @@ namespace PoiLootVacuum
                 int wc = 0, eb = 0, freeCrate = 0, freeInv = 0, freeDrone = 0;
                 ForEachTileEntity(world, pos, radius, te =>
                 {
-                    ITileEntityLootable loot = default;
-                    if (!TileEntityExtensions.TryGetSelfOrFeature<ITileEntityLootable>((ITileEntity)(object)te, ref loot)) return;
+                    if (!TileEntityExtensions.TryGetSelfOrFeature<ITileEntityLootable>((ITileEntity)(object)te, out var loot)) return;
                     if (loot.bPlayerStorage || string.IsNullOrEmpty(loot.lootListName)) return;
                     if (!LockManager.Instance.IsLockedServer((ILockTarget)(object)loot, 0)) wc++;
                 });
@@ -139,8 +137,7 @@ namespace PoiLootVacuum
 
             ForEachTileEntity(world, pos, radius, te =>
             {
-                ITileEntityLootable loot = default;
-                if (!TileEntityExtensions.TryGetSelfOrFeature<ITileEntityLootable>((ITileEntity)(object)te, ref loot)) return;
+                if (!TileEntityExtensions.TryGetSelfOrFeature<ITileEntityLootable>((ITileEntity)(object)te, out var loot)) return;
                 if (loot.bPlayerStorage || string.IsNullOrEmpty(loot.lootListName)) return;
                 if (loot.IsUserAccessing() || LockManager.Instance.IsLockedServer((ILockTarget)(object)loot, 0)) return;
 
