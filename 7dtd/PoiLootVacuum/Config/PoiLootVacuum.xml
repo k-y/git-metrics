@@ -27,7 +27,18 @@
   <Radius value="40" />
   <!-- Collect everything regardless of tag/category settings -->
   <PickupAll value="false" />
-  <!-- Where to put items: CrateOnly | InventoryOnly | InventoryThenCrate | CrateThenInventory -->
+  <!--
+    Where to put items. Drone modes require the player drone to be deployed nearby (~20m).
+      CrateOnly                  - player-placed crates only
+      InventoryOnly              - toolbelt + backpack only (leftover stays in container)
+      InventoryThenCrate         - inventory first, overflow to crates
+      CrateThenInventory         - crates first, overflow to inventory
+      DroneOnly                  - drone storage only
+      DroneThenInventory         - drone first, overflow to inventory
+      DroneThenCrate             - drone first, overflow to crates
+      DroneThenInventoryThenCrate- drone → inventory → crates
+      DroneThenCrateThenInventory- drone → crates → inventory
+  -->
   <Destination value="CrateOnly" />
   <PickupWeapons value="true" />
   <PickupTools value="true" />

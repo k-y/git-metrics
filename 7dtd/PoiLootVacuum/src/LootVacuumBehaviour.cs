@@ -25,10 +25,25 @@ namespace PoiLootVacuum
             var lm = GameManager.Instance.lootManager;
             var mode = Config.Destination;
 
-            bool useCrates    = mode != DestinationMode.InventoryOnly;
-            bool useInventory = mode != DestinationMode.InventoryOnly
-                                    ? mode != DestinationMode.CrateOnly
-                                    : true;
+            bool useDrone     = mode == DestinationMode.DroneOnly
+                             || mode == DestinationMode.DroneThenInventory
+                             || mode == DestinationMode.DroneThenCrate
+                             || mode == DestinationMode.DroneThenInventoryThenCrate
+                             || mode == DestinationMode.DroneThenCrateThenInventory;
+            bool useCrates    = mode == DestinationMode.CrateOnly
+                             || mode == DestinationMode.InventoryThenCrate
+                             || mode == DestinationMode.CrateThenInventory
+                             || mode == DestinationMode.DroneThenCrate
+                             || mode == DestinationMode.DroneThenInventoryThenCrate
+                             || mode == DestinationMode.DroneThenCrateThenInventory;
+            bool useInventory = mode == DestinationMode.InventoryOnly
+                             || mode == DestinationMode.InventoryThenCrate
+                             || mode == DestinationMode.CrateThenInventory
+                             || mode == DestinationMode.DroneThenInventory
+                             || mode == DestinationMode.DroneThenInventoryThenCrate
+                             || mode == DestinationMode.DroneThenCrateThenInventory;
+
+            Bag droneBag = useDrone ? GetBag(GetPlayerDrone(world, pos)) : null;
 
             var dests = new List<ITileEntityLootable>();
             if (useCrates)
@@ -41,16 +56,25 @@ namespace PoiLootVacuum
                 });
             }
 
-            bool cratesRequired = useCrates && !useInventory;
-            if (cratesRequired && dests.Count == 0)
+            if (mode == DestinationMode.DroneOnly && droneBag == null)
+            {
+                Tip(player, "[CL] No drone found nearby.");
+                return;
+            }
+            if (mode == DestinationMode.CrateOnly && dests.Count == 0)
             {
                 Tip(player, $"[CL] No player-placed crates within {radius:F0}m.");
+                return;
+            }
+            if (mode == DestinationMode.DroneThenCrate && droneBag == null && dests.Count == 0)
+            {
+                Tip(player, $"[CL] No drone or crates found within {radius:F0}m.");
                 return;
             }
 
             if (scanOnly)
             {
-                int wc = 0, eb = 0, freeCrate = 0, freeInv = 0;
+                int wc = 0, eb = 0, freeCrate = 0, freeInv = 0, freeDrone = 0;
                 ForEachTileEntity(world, pos, radius, te =>
                 {
                     if (!(te is TileEntityComposite tec) || tec.PlayerPlaced) return;
@@ -75,10 +99,29 @@ namespace PoiLootVacuum
                         foreach (var s in bagSlots)
                             if (s == null || s.IsEmpty()) freeInv++;
                 }
-                string destInfo = mode == DestinationMode.CrateOnly      ? $"{dests.Count} crates ({freeCrate} free)"
-                                : mode == DestinationMode.InventoryOnly   ? $"inventory ({freeInv} free)"
-                                : mode == DestinationMode.InventoryThenCrate ? $"inventory ({freeInv} free) then {dests.Count} crates ({freeCrate} free)"
-                                :                                             $"{dests.Count} crates ({freeCrate} free) then inventory ({freeInv} free)";
+                if (droneBag != null)
+                {
+                    var ds = droneBag.GetSlots();
+                    if (ds != null)
+                        foreach (var s in ds)
+                            if (s == null || s.IsEmpty()) freeDrone++;
+                }
+                string droneLabel  = droneBag != null ? $"drone ({freeDrone} free)" : "drone (none)";
+                string invLabel    = $"inventory ({freeInv} free)";
+                string crateLabel  = $"{dests.Count} crates ({freeCrate} free)";
+                string destInfo;
+                switch (mode)
+                {
+                    case DestinationMode.CrateOnly:                  destInfo = crateLabel; break;
+                    case DestinationMode.InventoryOnly:              destInfo = invLabel; break;
+                    case DestinationMode.InventoryThenCrate:         destInfo = $"{invLabel} then {crateLabel}"; break;
+                    case DestinationMode.CrateThenInventory:         destInfo = $"{crateLabel} then {invLabel}"; break;
+                    case DestinationMode.DroneOnly:                  destInfo = droneLabel; break;
+                    case DestinationMode.DroneThenInventory:         destInfo = $"{droneLabel} then {invLabel}"; break;
+                    case DestinationMode.DroneThenCrate:             destInfo = $"{droneLabel} then {crateLabel}"; break;
+                    case DestinationMode.DroneThenInventoryThenCrate:destInfo = $"{droneLabel} then {invLabel} then {crateLabel}"; break;
+                    default:                                         destInfo = $"{droneLabel} then {crateLabel} then {invLabel}"; break;
+                }
                 Tip(player, $"[Scan r={radius:F0}] {wc} containers + {eb} bags → {destInfo}");
                 return;
             }
@@ -99,7 +142,7 @@ namespace PoiLootVacuum
                     rolled++;
                 }
 
-                if (TransferItems(loot.items, dests, player, ref stacks))
+                if (TransferItems(loot.items, droneBag, dests, player, ref stacks))
                 {
                     loot.SetModified();
                     wContainers++;
@@ -114,16 +157,26 @@ namespace PoiLootVacuum
                     catch { }
                     rolled++;
                 }
-                if (TransferItems(bag.items, dests, player, ref stacks))
+                if (TransferItems(bag.items, droneBag, dests, player, ref stacks))
                     eBags++;
             });
 
             foreach (var d in dests) d.SetModified();
 
-            string dest = mode == DestinationMode.CrateOnly    ? $"{dests.Count} crates"
-                        : mode == DestinationMode.InventoryOnly ? "inventory"
-                        :                                          "inventory + crates";
-            Tip(player, $"Collected {stacks} stacks ({wContainers} containers, {eBags} bags, {rolled} rolls) → {dest}");
+            string destLabel;
+            switch (mode)
+            {
+                case DestinationMode.CrateOnly:                   destLabel = $"{dests.Count} crates"; break;
+                case DestinationMode.InventoryOnly:               destLabel = "inventory"; break;
+                case DestinationMode.InventoryThenCrate:          destLabel = "inventory then crates"; break;
+                case DestinationMode.CrateThenInventory:          destLabel = "crates then inventory"; break;
+                case DestinationMode.DroneOnly:                   destLabel = "drone"; break;
+                case DestinationMode.DroneThenInventory:          destLabel = "drone then inventory"; break;
+                case DestinationMode.DroneThenCrate:              destLabel = "drone then crates"; break;
+                case DestinationMode.DroneThenInventoryThenCrate: destLabel = "drone then inventory then crates"; break;
+                default:                                          destLabel = "drone then crates then inventory"; break;
+            }
+            Tip(player, $"Collected {stacks} stacks ({wContainers} containers, {eBags} bags, {rolled} rolls) → {destLabel}");
         }
 
         static void Tip(EntityPlayerLocal player, string text)
@@ -131,7 +184,7 @@ namespace PoiLootVacuum
             try { GameManager.ShowTooltipMP(player, text, ""); } catch { }
         }
 
-        static bool TransferItems(ItemStack[] src, List<ITileEntityLootable> dests, EntityPlayerLocal player, ref int stacks)
+        static bool TransferItems(ItemStack[] src, Bag droneBag, List<ITileEntityLootable> dests, EntityPlayerLocal player, ref int stacks)
         {
             var mode = Config.Destination;
             bool any = false;
@@ -163,6 +216,33 @@ namespace PoiLootVacuum
                         if (stack.count > 0)
                             moved += MoveToInventory(ref stack, player);
                         break;
+                    case DestinationMode.DroneOnly:
+                        if (droneBag != null) moved += MoveToBag(ref stack, droneBag);
+                        break;
+                    case DestinationMode.DroneThenInventory:
+                        if (droneBag != null) moved += MoveToBag(ref stack, droneBag);
+                        if (stack.count > 0) moved += MoveToInventory(ref stack, player);
+                        break;
+                    case DestinationMode.DroneThenCrate:
+                        if (droneBag != null) moved += MoveToBag(ref stack, droneBag);
+                        if (stack.count > 0)
+                            foreach (var dest in dests)
+                                moved += LootSorter.MoveStack(ref stack, dest);
+                        break;
+                    case DestinationMode.DroneThenInventoryThenCrate:
+                        if (droneBag != null) moved += MoveToBag(ref stack, droneBag);
+                        if (stack.count > 0) moved += MoveToInventory(ref stack, player);
+                        if (stack.count > 0)
+                            foreach (var dest in dests)
+                                moved += LootSorter.MoveStack(ref stack, dest);
+                        break;
+                    case DestinationMode.DroneThenCrateThenInventory:
+                        if (droneBag != null) moved += MoveToBag(ref stack, droneBag);
+                        if (stack.count > 0)
+                            foreach (var dest in dests)
+                                moved += LootSorter.MoveStack(ref stack, dest);
+                        if (stack.count > 0) moved += MoveToInventory(ref stack, player);
+                        break;
                 }
 
                 if (moved > 0)
@@ -181,8 +261,6 @@ namespace PoiLootVacuum
             {
                 int max = LootSorter.GetMaxStack(stack.itemValue.ItemClass);
                 int moved = 0;
-
-                // Toolbelt
                 var inv = player.inventory;
                 int invCount = inv.GetItemCount();
 
@@ -211,48 +289,68 @@ namespace PoiLootVacuum
                     moved += toAdd;
                 }
 
-                // Backpack
-                var bag = player.bag;
-                if (bag != null && stack.count > 0)
-                {
-                    var bagSlots = bag.GetSlots();
-                    if (bagSlots != null)
-                    {
-                        int movedToBag = 0;
-
-                        for (int i = 0; i < bagSlots.Length && stack.count > 0; i++)
-                        {
-                            var slot = bagSlots[i];
-                            if (slot == null || slot.IsEmpty()) continue;
-                            if (slot.itemValue.type != stack.itemValue.type) continue;
-                            int canAdd = max - slot.count;
-                            if (canAdd <= 0) continue;
-                            int toAdd = Math.Min(canAdd, stack.count);
-                            bagSlots[i] = new ItemStack(slot.itemValue, slot.count + toAdd);
-                            stack = new ItemStack(stack.itemValue, stack.count - toAdd);
-                            movedToBag += toAdd;
-                        }
-
-                        for (int i = 0; i < bagSlots.Length && stack.count > 0; i++)
-                        {
-                            if (bagSlots[i] != null && !bagSlots[i].IsEmpty()) continue;
-                            int toAdd = Math.Min(max, stack.count);
-                            bagSlots[i] = new ItemStack(stack.itemValue, toAdd);
-                            stack = new ItemStack(stack.itemValue, stack.count - toAdd);
-                            movedToBag += toAdd;
-                        }
-
-                        if (movedToBag > 0)
-                        {
-                            bag.SetSlots(bagSlots);
-                            moved += movedToBag;
-                        }
-                    }
-                }
+                if (stack.count > 0 && player.bag != null)
+                    moved += MoveToBag(ref stack, player.bag);
 
                 return moved;
             }
             catch { return 0; }
+        }
+
+        static int MoveToBag(ref ItemStack stack, Bag bag)
+        {
+            try
+            {
+                var slots = bag.GetSlots();
+                if (slots == null) return 0;
+                int max = LootSorter.GetMaxStack(stack.itemValue.ItemClass);
+                int moved = 0;
+
+                for (int i = 0; i < slots.Length && stack.count > 0; i++)
+                {
+                    var slot = slots[i];
+                    if (slot == null || slot.IsEmpty()) continue;
+                    if (slot.itemValue.type != stack.itemValue.type) continue;
+                    int canAdd = max - slot.count;
+                    if (canAdd <= 0) continue;
+                    int toAdd = Math.Min(canAdd, stack.count);
+                    slots[i] = new ItemStack(slot.itemValue, slot.count + toAdd);
+                    stack = new ItemStack(stack.itemValue, stack.count - toAdd);
+                    moved += toAdd;
+                }
+
+                for (int i = 0; i < slots.Length && stack.count > 0; i++)
+                {
+                    if (slots[i] != null && !slots[i].IsEmpty()) continue;
+                    int toAdd = Math.Min(max, stack.count);
+                    slots[i] = new ItemStack(stack.itemValue, toAdd);
+                    stack = new ItemStack(stack.itemValue, stack.count - toAdd);
+                    moved += toAdd;
+                }
+
+                if (moved > 0) bag.SetSlots(slots);
+                return moved;
+            }
+            catch { return 0; }
+        }
+
+        // Drone always follows the player; find it by type name within a close radius.
+        static Entity GetPlayerDrone(World world, Vector3 pos)
+        {
+            try
+            {
+                float r2 = 20f * 20f;
+                foreach (var kvp in world.Entities.dict)
+                {
+                    var e = kvp.Value;
+                    if (e == null) continue;
+                    if (e.GetType().Name.IndexOf("Drone", StringComparison.OrdinalIgnoreCase) < 0) continue;
+                    float dx = e.position.x - pos.x, dy = e.position.y - pos.y, dz = e.position.z - pos.z;
+                    if (dx * dx + dy * dy + dz * dz <= r2) return e;
+                }
+            }
+            catch { }
+            return null;
         }
 
         static void ForEachTileEntity(World world, Vector3 pos, float radius, Action<TileEntity> action)

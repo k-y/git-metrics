@@ -2,7 +2,18 @@ using UnityEngine;
 
 namespace PoiLootVacuum
 {
-    public enum DestinationMode { CrateOnly, InventoryOnly, InventoryThenCrate, CrateThenInventory }
+    public enum DestinationMode
+    {
+        CrateOnly,
+        InventoryOnly,
+        InventoryThenCrate,
+        CrateThenInventory,
+        DroneOnly,
+        DroneThenInventory,
+        DroneThenCrate,
+        DroneThenInventoryThenCrate,
+        DroneThenCrateThenInventory,
+    }
 
     public static class Config
     {
