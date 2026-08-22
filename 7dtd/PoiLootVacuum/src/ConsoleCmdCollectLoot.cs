@@ -53,7 +53,7 @@ namespace PoiLootVacuum
 
             if (dests.Count == 0)
             {
-                Reply(ci, $"[CL] No player-placed crates within {radius:F0}m.");
+                SdtdConsole.Instance.Output($"[CL] No player-placed crates within {radius:F0}m.");
                 return;
             }
 
@@ -70,7 +70,7 @@ namespace PoiLootVacuum
                 foreach (var d in dests)
                     foreach (var slot in d.items)
                         if (slot == null || slot.IsEmpty()) free++;
-                Reply(ci, $"[Scan r={radius:F0}] {wc} containers + {eb} bags → {dests.Count} crates ({free} free slots)");
+                SdtdConsole.Instance.Output($"[Scan r={radius:F0}] {wc} containers + {eb} bags → {dests.Count} crates ({free} free slots)");
                 return;
             }
 
@@ -113,7 +113,7 @@ namespace PoiLootVacuum
 
             foreach (var d in dests) d.SetModified();
 
-            Reply(ci, $"Collected {stacks} stacks ({wContainers} containers, {eBags} bags, {rolled} rolls) → {dests.Count} crates");
+            SdtdConsole.Instance.Output($"Collected {stacks} stacks ({wContainers} containers, {eBags} bags, {rolled} rolls) → {dests.Count} crates");
         }
 
         static bool TransferItems(ItemStack[] src, List<ITileEntityLootable> dests, EntityPlayer player, ref int stacks)
@@ -208,18 +208,6 @@ namespace PoiLootVacuum
             }
             catch { }
             return false;
-        }
-
-        static void Reply(ClientInfo ci, string text)
-        {
-            try
-            {
-                GameManager.Instance.ChatMessageServer(
-                    null, EChatType.Whisper, -1, text,
-                    new List<int> { ci.entityId },
-                    EMessageSender.Server);
-            }
-            catch { }
         }
     }
 }
