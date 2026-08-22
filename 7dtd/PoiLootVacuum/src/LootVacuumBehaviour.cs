@@ -138,8 +138,8 @@ namespace PoiLootVacuum
                     var te = list[k];
                     if (te == null) continue;
                     var wp = te.ToWorldPos();
-                    float dx = wp.x - pos.x, dz = wp.z - pos.z;
-                    if (dx * dx + dz * dz > r2) continue;
+                    float dx = wp.x - pos.x, dy = wp.y - pos.y, dz = wp.z - pos.z;
+                    if (dx * dx + dy * dy + dz * dz > r2) continue;
                     try { action(te); } catch { }
                 }
             }
@@ -153,8 +153,8 @@ namespace PoiLootVacuum
                 var ent = kvp.Value;
                 if (ent == null) continue;
                 if (!(ent is EntityLootContainer || ent is EntityBackpack || ent is EntitySupplyCrate)) continue;
-                float dx = ent.position.x - pos.x, dz = ent.position.z - pos.z;
-                if (dx * dx + dz * dz > r2) continue;
+                float dx = ent.position.x - pos.x, dy = ent.position.y - pos.y, dz = ent.position.z - pos.z;
+                if (dx * dx + dy * dy + dz * dz > r2) continue;
                 var bag = GetBag(ent);
                 if (bag == null) continue;
                 try { action(bag, ent); } catch { }
