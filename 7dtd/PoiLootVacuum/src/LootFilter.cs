@@ -10,7 +10,7 @@ namespace PoiLootVacuum
         static readonly FastTags<TagGroup.Global> T_Ammo      = FastTags<TagGroup.Global>.Parse("ammo");
         static readonly FastTags<TagGroup.Global> T_Food      = FastTags<TagGroup.Global>.Parse("food");
         static readonly FastTags<TagGroup.Global> T_Medicine  = FastTags<TagGroup.Global>.Parse("medical");
-        static readonly FastTags<TagGroup.Global> T_Book      = FastTags<TagGroup.Global>.Parse("book");
+        static readonly FastTags<TagGroup.Global> T_Book      = FastTags<TagGroup.Global>.Parse("books,csm");
         static readonly FastTags<TagGroup.Global> T_Component = FastTags<TagGroup.Global>.Parse("component");
         static readonly FastTags<TagGroup.Global> T_Resource  = FastTags<TagGroup.Global>.Parse("resource");
 
