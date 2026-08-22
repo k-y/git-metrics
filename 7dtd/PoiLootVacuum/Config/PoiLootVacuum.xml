@@ -2,12 +2,25 @@
 <!--
   PoiLootVacuum client-side config.
   CollectKey : any UnityEngine.KeyCode name (e.g. F9, F10, KeypadPlus)
-  Radius     : collection radius in metres (3D sphere)
+  Radius     : collection radius in metres (3D sphere).
+               40 covers most POIs from inside; 80-100 for large POIs (skyscrapers, factories).
+               Effective ceiling is ~150 — beyond that chunks are unloaded and nothing extra is found.
   Shift+CollectKey runs a dry-run scan without moving items.
 
-  TagMappings: add extra item tags to a category without recompiling.
-  Valid categories: Weapon, Tool, Armor, Ammo, Food, Medicine, Book, Component, Resource, Misc
-  Default tags are always active; entries here are additive.
+  TagMappings: purely additive — hard-coded defaults are always active regardless of this block.
+    Default tags per category:
+      Weapon    : weapon
+      Tool      : tool
+      Armor     : armor
+      Ammo      : ammo
+      Food      : food
+      Medicine  : medical
+      Book      : books, csm
+      Component : component
+      Resource  : resource, junk
+      Misc      : catch-all for anything that matches none of the above
+    Add mod-specific tags here to extend a category without recompiling.
+    Valid category names: Weapon, Tool, Armor, Ammo, Food, Medicine, Book, Component, Resource, Misc
 -->
 <PoiLootVacuum>
   <CollectKey value="F10" />
