@@ -12,7 +12,7 @@ namespace PoiLootVacuum
         static readonly FastTags<TagGroup.Global> T_Medicine  = FastTags<TagGroup.Global>.Parse("medical");
         static readonly FastTags<TagGroup.Global> T_Book      = FastTags<TagGroup.Global>.Parse("books,csm");
         static readonly FastTags<TagGroup.Global> T_Component = FastTags<TagGroup.Global>.Parse("component");
-        static readonly FastTags<TagGroup.Global> T_Resource  = FastTags<TagGroup.Global>.Parse("resource");
+        static readonly FastTags<TagGroup.Global> T_Resource  = FastTags<TagGroup.Global>.Parse("resource,junk");
 
         public static LootCategory Classify(ItemClass ic)
         {
