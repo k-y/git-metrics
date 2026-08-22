@@ -90,7 +90,7 @@ namespace PoiLootVacuum
                 {
                     if (!TileEntityExtensions.TryGetSelfOrFeature<ITileEntityLootable>((ITileEntity)(object)te, out var loot)) return;
                     if (loot.bPlayerStorage || string.IsNullOrEmpty(loot.lootListName)) return;
-                    if (!LockManager.Instance.IsLockedServer((ILockTarget)(object)loot, 0)) wc++;
+                    if (!IsLocked((ILockTarget)(object)loot)) wc++;
                 });
                 ForEachEntityBag(world, pos, radius, (bag, ent) => eb++);
                 foreach (var d in dests)
@@ -139,7 +139,7 @@ namespace PoiLootVacuum
             {
                 if (!TileEntityExtensions.TryGetSelfOrFeature<ITileEntityLootable>((ITileEntity)(object)te, out var loot)) return;
                 if (loot.bPlayerStorage || string.IsNullOrEmpty(loot.lootListName)) return;
-                if (loot.IsUserAccessing() || LockManager.Instance.IsLockedServer((ILockTarget)(object)loot, 0)) return;
+                if (loot.IsUserAccessing() || IsLocked((ILockTarget)(object)loot)) return;
 
                 bool touched = loot.bTouched;
                 bool isEmpty = loot.IsEmpty();
@@ -197,6 +197,13 @@ namespace PoiLootVacuum
         static void Tip(EntityPlayer player, string text)
         {
             try { GameManager.ShowTooltipMP(player, text, ""); } catch { }
+        }
+
+        static bool IsLocked(ILockTarget target)
+        {
+            var cm = SingletonMonoBehaviour<ConnectionManager>.Instance;
+            if (cm != null && !cm.IsServer) return false;
+            try { return LockManager.Instance.IsLockedServer(target, 0); } catch { return false; }
         }
 
         static bool TransferItems(ItemStack[] src, Bag droneBag, List<ITileEntityLootable> dests, EntityPlayer player, ref int stacks)
