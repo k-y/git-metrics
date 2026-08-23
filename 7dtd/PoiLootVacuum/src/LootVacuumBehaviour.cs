@@ -149,7 +149,8 @@ namespace PoiLootVacuum
                 {
                     try
                     {
-                        lm.LootContainerOpened(loot, playerId, te.blockValue.Block.Tags);
+                        var bv = ((WorldBase)world).GetBlock(te.ToWorldPos());
+                        lm.LootContainerOpened(loot, playerId, bv.Block.Tags);
                         loot.bTouched = true;
                     }
                     catch { }
