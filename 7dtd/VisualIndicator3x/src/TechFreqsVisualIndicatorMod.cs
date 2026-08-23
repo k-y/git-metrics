@@ -13,10 +13,14 @@ internal class ToggleBehaviour : MonoBehaviour
 	void Update()
 	{
 		if (!Input.GetKeyDown(TechFreqsVisualIndicatorMod.ToggleKey)) return;
+		Debug.Log("[TechFreqs Visual Indicator] Toggle key detected: " + TechFreqsVisualIndicatorMod.ToggleKey);
 		var world = GameManager.Instance?.World;
 		var player = world != null ? ((WorldBase)world).GetPrimaryPlayer() : null;
-		if (player == null || ((Entity)player).isEntityRemote || !((Entity)player).IsSpawned()) return;
+		if (player == null)           { Debug.Log("[TechFreqs Visual Indicator] Toggle blocked: no player");      return; }
+		if (((Entity)player).isEntityRemote) { Debug.Log("[TechFreqs Visual Indicator] Toggle blocked: isEntityRemote"); return; }
+		if (!((Entity)player).IsSpawned())   { Debug.Log("[TechFreqs Visual Indicator] Toggle blocked: not spawned");    return; }
 		TechFreqsVisualIndicatorMod.IndicatorsEnabled = !TechFreqsVisualIndicatorMod.IndicatorsEnabled;
+		Debug.Log("[TechFreqs Visual Indicator] Toggled to: " + TechFreqsVisualIndicatorMod.IndicatorsEnabled);
 		GameManager.ShowTooltip(player, "[TechFreqs Visual Indicator] " +
 			(TechFreqsVisualIndicatorMod.IndicatorsEnabled ? "ENABLED" : "DISABLED"), false, false, 0f);
 		if (!TechFreqsVisualIndicatorMod.IndicatorsEnabled)
