@@ -36,6 +36,12 @@ namespace EntityLabels
                 string uv = Attr(root, "UpdateInterval");
                 if (uv != null && float.TryParse(uv, out float u)) Config.UpdateInterval = u;
 
+                string fsv = Attr(root, "FontSize");
+                if (fsv != null && int.TryParse(fsv, out int fs)) Config.FontSize = fs;
+
+                string fov = Attr(root, "FieldOfView");
+                if (fov != null && float.TryParse(fov, out float fo)) Config.FieldOfView = fo;
+
                 Config.ShowType     = Bool(root, "ShowType",     Config.ShowType);
                 Config.ShowHealth   = Bool(root, "ShowHealth",   Config.ShowHealth);
                 Config.ShowDist     = Bool(root, "ShowDist",     Config.ShowDist);

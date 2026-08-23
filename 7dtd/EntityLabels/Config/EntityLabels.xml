@@ -16,6 +16,9 @@
   <ToggleKey value="F9" />
   <Radius value="80" />
   <UpdateInterval value="2" />
+  <FontSize value="10" />
+  <!-- FieldOfView must match your in-game FOV setting (Options → Video) -->
+  <FieldOfView value="65" />
   <ShowType value="true" />
   <ShowHealth value="true" />
   <ShowDist value="true" />

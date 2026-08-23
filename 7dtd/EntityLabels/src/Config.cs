@@ -7,6 +7,8 @@ namespace EntityLabels
         public static KeyCode ToggleKey     = KeyCode.F9;
         public static float   Radius        = 80f;
         public static float   UpdateInterval= 2f;
+        public static int     FontSize      = 10;
+        public static float   FieldOfView   = 65f;
         public static bool    ShowType      = true;
         public static bool    ShowHealth    = true;
         public static bool    ShowDist      = true;
