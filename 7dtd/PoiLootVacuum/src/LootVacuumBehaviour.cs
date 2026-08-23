@@ -149,8 +149,7 @@ namespace PoiLootVacuum
                 {
                     try
                     {
-                        BlockValue bv = ((ITileEntity)loot).blockValue;
-                        lm.LootContainerOpened(loot, playerId, bv.Block.Tags);
+                        lm.LootContainerOpened(loot, playerId, te.blockValue.Block.Tags);
                         loot.bTouched = true;
                     }
                     catch { }
@@ -159,7 +158,7 @@ namespace PoiLootVacuum
 
                 if (TransferItems(loot.items, droneBag, dests, player, ref stacks))
                 {
-                    ((ITileEntity)loot).SetModified();
+                    te.SetModified();
                     wContainers++;
                 }
             });
