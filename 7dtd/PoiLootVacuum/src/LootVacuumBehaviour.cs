@@ -112,7 +112,55 @@ namespace PoiLootVacuum
                 for (int i = 0; i < list.Count; i++)
                     if (list[i].ToWorldPos() == pos) { te = list[i]; break; }
                 if (te == null) return;
-                GameManager.Instance.TEAccessServer(player, pos.x, pos.y, pos.z);
+
+                if (!TileEntityExtensions.TryGetSelfOrFeature<ITileEntityLootable>((ITileEntity)(object)te, out var loot)) return;
+
+                var lm = GameManager.Instance.lootManager;
+                if (!loot.bTouched && lm != null)
+                {
+                    try
+                    {
+                        var bv = ((WorldBase)world).GetBlock(te.ToWorldPos());
+                        lm.LootContainerOpened(loot, player.entityId, bv.Block.Tags);
+                        loot.bTouched = true;
+                    }
+                    catch { }
+                }
+
+                var bag = player.bag;
+                if (bag == null) return;
+                bool any = false;
+                var items = loot.items;
+                for (int i = 0; i < items.Length; i++)
+                {
+                    var stack = items[i];
+                    if (stack == null || stack.IsEmpty()) continue;
+                    int before = stack.count;
+                    var moving = stack.Clone();
+                    bag.TryStackItem(0, moving);
+                    if (moving.count > 0)
+                    {
+                        var slots = bag.items;
+                        for (int j = 0; j < slots.Length && moving.count > 0; j++)
+                        {
+                            if (slots[j] == null || slots[j].IsEmpty())
+                            {
+                                bag.SetSlot(j, moving.Clone(), true);
+                                moving.count = 0;
+                            }
+                        }
+                    }
+                    if (moving.count < before)
+                    {
+                        items[i] = moving.count > 0 ? moving : ItemStack.Empty.Clone();
+                        any = true;
+                    }
+                }
+                if (any)
+                {
+                    bag.onBackpackChanged();
+                    te.SetModified();
+                }
             }
             catch { }
         }
