@@ -255,6 +255,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 				screen.ShowTextType = (showLabels && flag)
 					? NavObjectScreenSettings.ShowTextTypes.Name
 					: NavObjectScreenSettings.ShowTextTypes.None;
+				screen.FontSize = 12;
 			}
 		}
 	}
