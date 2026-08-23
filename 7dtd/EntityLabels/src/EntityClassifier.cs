@@ -11,9 +11,8 @@ namespace EntityLabels
             if (entity is EntityPlayer) return EntityCategory.Player;
             if (entity is EntityNPC)   return EntityCategory.Trader;
 
-            // Check boss/miniboss tags before type for animals and zombies
-            bool isBoss     = HasTag(entity, "boss");
-            bool isMiniB    = !isBoss && HasTag(entity, "miniboss");
+            bool isBoss  = HasTag(entity, "boss");
+            bool isMiniB = !isBoss && HasTag(entity, "miniboss");
 
             if (entity is EntityAnimal)
             {
@@ -22,7 +21,6 @@ namespace EntityLabels
                 return EntityCategory.Animal;
             }
 
-            // EntityZombie and any unknown EntityAlive (modded enemies)
             if (isBoss)  return EntityCategory.Boss;
             if (isMiniB) return EntityCategory.MiniBoss;
             return EntityCategory.Zombie;
@@ -32,7 +30,7 @@ namespace EntityLabels
         {
             try
             {
-                EntityClass ec = EntityClass.list[entity.entityClass];
+                var ec = entity.EntityClass; // capital-E property returns EntityClass object
                 if (ec == null) return false;
                 string ts = ec.Tags.ToString();
                 return ts != null && ts.IndexOf(tagName, StringComparison.OrdinalIgnoreCase) >= 0;

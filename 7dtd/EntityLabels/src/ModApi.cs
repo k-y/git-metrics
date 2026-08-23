@@ -33,12 +33,14 @@ namespace EntityLabels
                 string rv = Attr(root, "Radius");
                 if (rv != null && float.TryParse(rv, out float r)) Config.Radius = r;
 
-                string fv = Attr(root, "FontSize");
-                if (fv != null && int.TryParse(fv, out int f)) Config.FontSize = f;
+                string uv = Attr(root, "UpdateInterval");
+                if (uv != null && float.TryParse(uv, out float u)) Config.UpdateInterval = u;
 
-                Config.ShowType   = Bool(root, "ShowType",   Config.ShowType);
-                Config.ShowHealth = Bool(root, "ShowHealth", Config.ShowHealth);
-                Config.ShowDist   = Bool(root, "ShowDist",   Config.ShowDist);
+                Config.ShowType     = Bool(root, "ShowType",     Config.ShowType);
+                Config.ShowHealth   = Bool(root, "ShowHealth",   Config.ShowHealth);
+                Config.ShowDist     = Bool(root, "ShowDist",     Config.ShowDist);
+                Config.ShowCompass  = Bool(root, "ShowCompass",  Config.ShowCompass);
+                Config.ShowMap      = Bool(root, "ShowMap",      Config.ShowMap);
 
                 TryColor(root, "PlayerColor",   ref Config.PlayerColor);
                 TryColor(root, "TraderColor",   ref Config.TraderColor);

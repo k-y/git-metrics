@@ -1,96 +1,103 @@
-using System.Text;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace EntityLabels
 {
     public class EntityLabelBehaviour : MonoBehaviour
     {
+        static readonly Dictionary<int, NavObject> _navObjects = new Dictionary<int, NavObject>();
         bool _visible;
-        GUIStyle _fg;
-        GUIStyle _shadow;
-        Camera _cam;
+
+        void Start()
+        {
+            StartCoroutine(UpdateLoop());
+        }
 
         void Update()
         {
-            if (Input.GetKeyDown(Config.ToggleKey))
-                _visible = !_visible;
-
-            // Keep camera reference fresh; done in Update (cheap) not OnGUI
-            _cam = FindWorldCamera();
+            if (!Input.GetKeyDown(Config.ToggleKey)) return;
+            _visible = !_visible;
+            if (!_visible)
+                ClearAll();
         }
 
-        void OnGUI()
+        IEnumerator UpdateLoop()
         {
-            if (!_visible) return;
-            if (Event.current.type != EventType.Repaint) return;
-
-            EnsureStyles();
-
-            var world = GameManager.Instance?.World;
-            if (world == null) return;
-            var cam = _cam ?? Camera.main;
-            if (cam == null) return;
-            var local = world.GetPrimaryPlayer();
-            if (local == null) return;
-
-            _fg.fontSize     = Config.FontSize;
-            _shadow.fontSize = Config.FontSize;
-
-            var entities = world.Entities.list;
-            for (int i = 0; i < entities.Count; i++)
+            yield return new WaitForSeconds(3f);
+            while (true)
             {
-                var entity = entities[i] as EntityAlive;
-                if (entity == null || !entity.IsAlive()) continue;
-                if (entity.entityId == local.entityId) continue;
+                if (_visible)
+                {
+                    var world = GameManager.Instance?.World;
+                    var local = world != null ? ((WorldBase)world).GetPrimaryPlayer() : null;
+                    if (local != null)
+                        Refresh(local);
+                }
+                yield return new WaitForSeconds(Config.UpdateInterval);
+            }
+        }
+
+        static void Refresh(EntityPlayerLocal player)
+        {
+            if (NavObjectManager.Instance == null) return;
+
+            ClearAll();
+
+            var entities = player.world?.Entities?.dict;
+            if (entities == null) return;
+
+            foreach (var kv in entities)
+            {
+                var entity = kv.Value as EntityAlive;
+                if (entity == null) continue;
+                if (entity.entityId == player.entityId) continue;
+                if (!entity.IsAlive() || entity.IsDespawned) continue;
 
                 var cat = EntityClassifier.Classify(entity);
                 if (!ShouldShow(cat)) continue;
 
-                float dist = Vector3.Distance(local.position, entity.position);
+                float dist = Vector3.Distance(player.position, entity.position);
                 if (dist > Config.Radius) continue;
 
-                // Project to screen; skip if behind the camera
-                var worldPt  = entity.position + new Vector3(0f, HeadOffset(entity), 0f);
-                var screenPt = cam.WorldToScreenPoint(worldPt);
-                if (screenPt.z < 0f) continue;
-
-                float sx = screenPt.x;
-                float sy = Screen.height - screenPt.y; // flip Y for GUI coords
-
-                string text = BuildLabel(entity, cat, dist);
-                _fg.normal.textColor = GetColor(cat);
-
-                float w = 260f;
-                float h = Config.FontSize + 6f;
-                float rx = sx - w * 0.5f;
-                float ry = sy - h * 0.5f;
-
-                GUI.Label(new Rect(rx + 1f, ry + 1f, w, h), text, _shadow);
-                GUI.Label(new Rect(rx,       ry,      w, h), text, _fg);
+                Register(entity, cat, dist);
             }
         }
 
-        void EnsureStyles()
+        static void Register(EntityAlive entity, EntityCategory cat, float dist)
         {
-            if (_fg != null) return;
-            _fg               = new GUIStyle(GUI.skin.label);
-            _fg.alignment     = TextAnchor.MiddleCenter;
-            _shadow           = new GUIStyle(GUI.skin.label);
-            _shadow.alignment = TextAnchor.MiddleCenter;
-            _shadow.normal.textColor = new Color(0f, 0f, 0f, 0.85f);
+            if (NavObjectManager.Instance == null) return;
+            string sprite = GetSprite(cat);
+            var nav = NavObjectManager.Instance.RegisterNavObject("quest", (Entity)(object)entity, sprite, !Config.ShowCompass);
+            if (nav == null) return;
+
+            _navObjects[entity.entityId] = nav;
+            nav.name               = BuildLabel(entity, cat, dist);
+            nav.usingLocalizationId= false;
+            nav.hiddenOnCompass    = !Config.ShowCompass;
+            nav.hiddenOnMap        = !Config.ShowMap;
+            nav.UseOverrideColor   = true;
+            nav.OverrideColor      = GetColor(cat);
+
+            if (nav.CurrentScreenSettings != null)
+            {
+                nav.CurrentScreenSettings.MaxDistance  = Config.Radius;
+                nav.CurrentScreenSettings.MinDistance  = 0f;
+                nav.CurrentScreenSettings.ShowTextType = (ShowTextTypes)2;
+            }
         }
 
-        static float HeadOffset(EntityAlive entity)
+        static void ClearAll()
         {
-            if (entity is EntityPlayer) return 2.5f;
-            if (entity is EntityAnimal) return 1.6f;
-            return 2.1f;
+            if (NavObjectManager.Instance != null)
+                foreach (var nav in _navObjects.Values)
+                    NavObjectManager.Instance.UnRegisterNavObject(nav);
+            _navObjects.Clear();
         }
 
         static string BuildLabel(EntityAlive entity, EntityCategory cat, float dist)
         {
-            var sb = new StringBuilder();
-
+            var sb = new System.Text.StringBuilder();
             if (Config.ShowType)
             {
                 switch (cat)
@@ -103,30 +110,28 @@ namespace EntityLabels
                     case EntityCategory.Boss:     sb.Append("[B] ");  break;
                 }
             }
-
-            sb.Append(GetDisplayName(entity));
-
+            string name = entity.GetDebugName();
+            if (string.IsNullOrEmpty(name))
+                name = entity.EntityClass?.entityClassName ?? "";
+            sb.Append(name);
             if (Config.ShowHealth)
                 sb.Append($" {entity.Health}/{entity.GetMaxHealth()}");
-
             if (Config.ShowDist)
                 sb.Append($" {dist:F0}m");
-
             return sb.ToString();
         }
 
-        static string GetDisplayName(EntityAlive entity)
+        static string GetSprite(EntityCategory cat)
         {
-            string key = entity.EntityName ?? "";
-            if (string.IsNullOrEmpty(key)) return "";
-            if (entity is EntityPlayer)
-                return key; // player names are not localization keys
-            try
+            switch (cat)
             {
-                string loc = Localization.Get(key);
-                return !string.IsNullOrEmpty(loc) ? loc : key;
+                case EntityCategory.Player:   return "ui_game_symbol_player";
+                case EntityCategory.Trader:   return "ui_game_symbol_trader";
+                case EntityCategory.Animal:   return "ui_game_symbol_animal";
+                case EntityCategory.Boss:
+                case EntityCategory.MiniBoss: return "ui_game_symbol_enemy";
+                default:                      return "ui_game_symbol_zombie";
             }
-            catch { return key; }
         }
 
         static bool ShouldShow(EntityCategory cat)
@@ -155,33 +160,6 @@ namespace EntityLabels
                 case EntityCategory.Boss:     return Config.BossColor;
                 default: return Color.white;
             }
-        }
-
-        // Camera.main is often an auxiliary camera in 7DTD.
-        // Primary: try GameManager.cameraPoint (the player's view transform).
-        // Fallback: the enabled camera with the largest farClipPlane — the world
-        // camera needs to see terrain/enemies far away; UI/hand cameras don't.
-        static Camera FindWorldCamera()
-        {
-            try
-            {
-                var t = GameManager.Instance?.cameraPoint;
-                if (t != null)
-                {
-                    var c = t.GetComponentInChildren<Camera>(true);
-                    if (c != null && c.enabled) return c;
-                }
-            }
-            catch { }
-
-            Camera best = null;
-            float bestFar = 0f;
-            foreach (var c in Camera.allCameras)
-            {
-                if (!c.enabled || !c.gameObject.activeInHierarchy) continue;
-                if (c.farClipPlane > bestFar) { bestFar = c.farClipPlane; best = c; }
-            }
-            return best ?? Camera.main;
         }
     }
 }

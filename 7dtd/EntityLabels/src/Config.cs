@@ -6,10 +6,12 @@ namespace EntityLabels
     {
         public static KeyCode ToggleKey     = KeyCode.F9;
         public static float   Radius        = 80f;
-        public static int     FontSize      = 11;
+        public static float   UpdateInterval= 2f;
         public static bool    ShowType      = true;
         public static bool    ShowHealth    = true;
         public static bool    ShowDist      = true;
+        public static bool    ShowCompass   = true;
+        public static bool    ShowMap       = true;
         public static Color   PlayerColor   = new Color(0f,    0.8f, 1f);
         public static Color   TraderColor   = new Color(0f,    1f,   0.4f);
         public static Color   AnimalColor   = new Color(0.9f,  0.7f, 0.2f);
