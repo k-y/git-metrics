@@ -248,20 +248,13 @@ public class TechFreqsVisualIndicatorMod : IModApi
 			val.hiddenOnMap = !showMapIcons;
 			val.UseOverrideColor = true;
 			val.OverrideColor = ((entity is EntityZombie) ? new Color(1f, 0f, 0f, 0.8f) : (IsHostile(entity) ? new Color(1f, 0.5f, 0f, 0.8f) : new Color(0f, 1f, 0f, 0.8f)));
-			if (val.CurrentScreenSettings != null)
+			if (val.CurrentScreenSettings is NavObjectScreenSettings screen)
 			{
-				((NavObjectSettings)val.CurrentScreenSettings).MaxDistance = (flag ? DetectionRadius : 0f);
-				((NavObjectSettings)val.CurrentScreenSettings).MinDistance = 0f;
-				// ShowTextTypes enum was renamed between game versions; use reflection so the port
-				// compiles regardless of whether the type is present in the game DLLs.
-				try
-				{
-					var prop = val.CurrentScreenSettings.GetType().GetProperty("ShowTextType");
-					if (prop != null)
-						prop.SetValue(val.CurrentScreenSettings,
-							System.Enum.ToObject(prop.PropertyType, (showLabels && flag) ? 2 : 0));
-				}
-				catch { }
+				screen.MaxDistance = flag ? DetectionRadius : 0f;
+				screen.MinDistance = 0f;
+				screen.ShowTextType = (showLabels && flag)
+					? NavObjectScreenSettings.ShowTextTypes.Name
+					: NavObjectScreenSettings.ShowTextTypes.None;
 			}
 		}
 	}
