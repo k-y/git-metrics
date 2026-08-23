@@ -2,11 +2,27 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using HarmonyLib;
 using Newtonsoft.Json;
 using UnityEngine;
 
 namespace TechFreqsVisualIndicatorMod;
+
+// Handles key toggle in Unity's Update loop — no Harmony dependency needed.
+internal class ToggleBehaviour : MonoBehaviour
+{
+	void Update()
+	{
+		if (!Input.GetKeyDown(TechFreqsVisualIndicatorMod.ToggleKey)) return;
+		var world = GameManager.Instance?.World;
+		var player = world != null ? ((WorldBase)world).GetPrimaryPlayer() : null;
+		if (player == null || ((Entity)player).isEntityRemote || !((Entity)player).IsSpawned()) return;
+		TechFreqsVisualIndicatorMod.IndicatorsEnabled = !TechFreqsVisualIndicatorMod.IndicatorsEnabled;
+		GameManager.ShowTooltip(player, "[TechFreqs Visual Indicator] " +
+			(TechFreqsVisualIndicatorMod.IndicatorsEnabled ? "ENABLED" : "DISABLED"), false, false, 0f);
+		if (!TechFreqsVisualIndicatorMod.IndicatorsEnabled)
+			TechFreqsVisualIndicatorMod.DisableDetectorPublic();
+	}
+}
 
 public class TechFreqsVisualIndicatorMod : IModApi
 {
@@ -34,23 +50,6 @@ public class TechFreqsVisualIndicatorMod : IModApi
 		public bool? AutoEnable { get; set; } = true;
 	}
 
-	[HarmonyPatch(typeof(EntityPlayerLocal), "Update")]
-	private class TogglePatch
-	{
-		private static void Postfix(EntityPlayerLocal __instance)
-		{
-			if (!((Object)(object)__instance == (Object)null) && !((Entity)__instance).isEntityRemote && ((Entity)__instance).IsSpawned() && Input.GetKeyDown(ToggleKey))
-			{
-				IndicatorsEnabled = !IndicatorsEnabled;
-				GameManager.ShowTooltip(__instance, "[TechFreqs Visual Indicator] " + (IndicatorsEnabled ? "ENABLED" : "DISABLED"), false, false, 0f);
-				if (!IndicatorsEnabled)
-				{
-					DisableDetector();
-				}
-			}
-		}
-	}
-
 	public const string MOD_PREFIX = "[TechFreqs Visual Indicator] ";
 
 	private static string configPath;
@@ -61,7 +60,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 
 	private static readonly Dictionary<string, NavObject> entityNavObjects = new Dictionary<string, NavObject>();
 
-	public static bool IndicatorsEnabled { get; private set; } = true;
+	public static bool IndicatorsEnabled { get; internal set; } = true;
 
 	public static float DetectionRadius { get; private set; } = 50f;
 
@@ -90,7 +89,9 @@ public class TechFreqsVisualIndicatorMod : IModApi
 		_modInstance = modInstance;
 		configPath = Path.Combine(modInstance.Path, "config.json");
 		Log("<color=cyan>TechFreqs Visual Indicator v3.0 LOADED</color>");
-		new Harmony("com.techfreq.visualindicator").PatchAll();
+		var go = new GameObject("TechFreqsVisualIndicator");
+		UnityEngine.Object.DontDestroyOnLoad(go);
+		go.AddComponent<ToggleBehaviour>();
 		LoadConfig();
 		IndicatorsEnabled = AutoEnable;
 		((MonoBehaviour)GameManager.Instance).StartCoroutine(MainLoop());
@@ -300,6 +301,8 @@ public class TechFreqsVisualIndicatorMod : IModApi
 		}
 		return true;
 	}
+
+	internal static void DisableDetectorPublic() => DisableDetector();
 
 	private static void DisableDetector()
 	{

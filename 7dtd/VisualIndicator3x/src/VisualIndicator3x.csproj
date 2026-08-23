@@ -27,10 +27,6 @@
       <HintPath>$(GameDir)\7DaysToDie_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
       <Private>false</Private>
     </Reference>
-    <Reference Include="0Harmony">
-      <HintPath>$(GameDir)\7DaysToDie_Data\Managed\0Harmony.dll</HintPath>
-      <Private>false</Private>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>$(GameDir)\7DaysToDie_Data\Managed\Newtonsoft.Json.dll</HintPath>
       <Private>false</Private>
