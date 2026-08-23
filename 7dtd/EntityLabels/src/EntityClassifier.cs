@@ -32,7 +32,7 @@ namespace EntityLabels
         {
             try
             {
-                var ec = entity.entityClass;
+                EntityClass ec = EntityClass.list[entity.entityClass];
                 if (ec == null) return false;
                 string ts = ec.Tags.ToString();
                 return ts != null && ts.IndexOf(tagName, StringComparison.OrdinalIgnoreCase) >= 0;
