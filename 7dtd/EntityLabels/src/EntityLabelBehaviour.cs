@@ -16,9 +16,7 @@ namespace EntityLabels
                 _visible = !_visible;
 
             // Keep camera reference fresh; done in Update (cheap) not OnGUI
-            var local = GameManager.Instance?.World?.GetPrimaryPlayer();
-            if (local != null)
-                _cam = FindWorldCamera(local.position);
+            _cam = FindWorldCamera();
         }
 
         void OnGUI()
@@ -159,20 +157,31 @@ namespace EntityLabels
             }
         }
 
-        // Camera.main is often an auxiliary camera in 7DTD. Find the enabled camera
-        // that is closest to the player and has the greatest draw distance — that is
-        // the first-person world camera.
-        static Camera FindWorldCamera(Vector3 playerPos)
+        // Camera.main is often an auxiliary camera in 7DTD.
+        // Primary: try GameManager.cameraPoint (the player's view transform).
+        // Fallback: the enabled camera with the largest farClipPlane — the world
+        // camera needs to see terrain/enemies far away; UI/hand cameras don't.
+        static Camera FindWorldCamera()
         {
+            try
+            {
+                var t = GameManager.Instance?.cameraPoint;
+                if (t != null)
+                {
+                    var c = t.GetComponentInChildren<Camera>(true);
+                    if (c != null && c.enabled) return c;
+                }
+            }
+            catch { }
+
             Camera best = null;
             float bestFar = 0f;
             foreach (var c in Camera.allCameras)
             {
                 if (!c.enabled || !c.gameObject.activeInHierarchy) continue;
-                if (Vector3.Distance(c.transform.position, playerPos) > 5f) continue;
                 if (c.farClipPlane > bestFar) { bestFar = c.farClipPlane; best = c; }
             }
-            return best;
+            return best ?? Camera.main;
         }
     }
 }
