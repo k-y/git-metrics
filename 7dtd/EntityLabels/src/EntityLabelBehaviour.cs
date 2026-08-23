@@ -111,12 +111,8 @@ namespace EntityLabels
             var local = ((WorldBase)world).GetPrimaryPlayer();
             if (local == null) return;
 
-            // cameraPoint is the player's view Transform — use it for projection
-            // without needing to find the Camera component
-            var camT = GameManager.Instance?.cameraPoint;
-            if (camT == null) return;
-
-            // Read FOV from Camera.main if available (position may be wrong but FOV setting is shared)
+            // Build the camera basis from the player's position and look vector —
+            // avoids needing Camera.main (wrong position) or cameraPoint (not in 1.x)
             float fovDeg = Config.FieldOfView;
             try { var mc = Camera.main; if (mc != null && mc.fieldOfView > 1f) fovDeg = mc.fieldOfView; } catch { }
 
@@ -125,6 +121,12 @@ namespace EntityLabels
 
             _fg.fontSize     = Config.FontSize;
             _shadow.fontSize = Config.FontSize;
+
+            Vector3 camPos = local.position + new Vector3(0f, 1.65f, 0f);
+            Quaternion camRot = Quaternion.LookRotation(local.GetLookVector(), Vector3.up);
+            Vector3 camFwd   = camRot * Vector3.forward;
+            Vector3 camRight = camRot * Vector3.right;
+            Vector3 camUp    = camRot * Vector3.up;
 
             var entities = local.world?.Entities?.dict;
             if (entities == null) return;
@@ -140,13 +142,16 @@ namespace EntityLabels
                 float dist = Vector3.Distance(local.position, entity.position);
                 if (dist > Config.Radius) continue;
 
-                // Transform entity world position into camera-local space
                 var worldPt  = entity.position + new Vector3(0f, HeadOffset(entity), 0f);
-                var camLocal = camT.InverseTransformPoint(worldPt);
-                if (camLocal.z < 0.1f) continue; // behind the camera
+                var toEntity = worldPt - camPos;
 
-                float sx = (camLocal.x / camLocal.z / tanHalfH * 0.5f + 0.5f) * Screen.width;
-                float sy = (1f - (camLocal.y / camLocal.z / tanHalfV * 0.5f + 0.5f)) * Screen.height;
+                float dotZ = Vector3.Dot(toEntity, camFwd);
+                if (dotZ < 0.1f) continue; // behind the camera
+                float dotX = Vector3.Dot(toEntity, camRight);
+                float dotY = Vector3.Dot(toEntity, camUp);
+
+                float sx = (dotX / dotZ / tanHalfH * 0.5f + 0.5f) * Screen.width;
+                float sy = (1f - (dotY / dotZ / tanHalfV * 0.5f + 0.5f)) * Screen.height;
                 if (sx < -300 || sx > Screen.width + 300 || sy < -50 || sy > Screen.height + 50) continue;
 
                 string text = BuildLabel(entity, cat, dist);
