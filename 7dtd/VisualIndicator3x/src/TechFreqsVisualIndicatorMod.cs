@@ -117,7 +117,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 					obj = ((world != null) ? ((WorldBase)world).GetPrimaryPlayer() : null);
 				}
 				EntityPlayerLocal val = (EntityPlayerLocal)obj;
-				if ((Object)(object)val != (Object)null)
+				if (val != null)
 				{
 					UpdateEntityDetector(val);
 				}
@@ -152,7 +152,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 					obj = ((world != null) ? ((WorldBase)world).GetPrimaryPlayer() : null);
 				}
 				EntityPlayerLocal val = (EntityPlayerLocal)obj;
-				if ((Object)(object)val != (Object)null)
+				if (val != null)
 				{
 					GameManager.ShowTooltip(val, "[TechFreqs Visual Indicator] Config Reloaded!", false, false, 0f);
 				}
