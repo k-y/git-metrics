@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <Name value="EntityLabels" />
+  <DisplayName value="Entity Labels" />
+  <Description value="Client-side floating entity labels with per-category colours, health, distance, and hotkey toggle. No server output." />
+  <Author value="" />
+  <Version value="1.0.0" />
+</xml>
