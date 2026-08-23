@@ -8,5 +8,6 @@
   "ShowCompassIcons": true,
   "ShowOnScreenIcons": true,
   "ShowMapIcons": true,
-  "AutoEnable": true
+  "AutoEnable": true,
+  "FontSize": 12
 }

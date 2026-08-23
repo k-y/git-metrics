@@ -48,6 +48,8 @@ public class TechFreqsVisualIndicatorMod : IModApi
 		public bool? ShowMapIcons { get; set; } = true;
 
 		public bool? AutoEnable { get; set; } = true;
+
+		public int? FontSize { get; set; } = 12;
 	}
 
 	public const string MOD_PREFIX = "[TechFreqs Visual Indicator] ";
@@ -83,6 +85,8 @@ public class TechFreqsVisualIndicatorMod : IModApi
 	public static bool ShowMapIcons { get; private set; } = true;
 
 	public static bool AutoEnable { get; private set; } = true;
+
+	public static int FontSize { get; private set; } = 12;
 
 	public void InitMod(Mod modInstance)
 	{
@@ -184,6 +188,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 			ShowOnScreenIcons = config.ShowOnScreenIcons ?? true;
 			ShowMapIcons = config.ShowMapIcons ?? true;
 			AutoEnable = config.AutoEnable ?? true;
+			FontSize = Mathf.Clamp(config.FontSize ?? 12, 6, 48);
 			Log("Config loaded successfully");
 		}
 		catch (Exception ex)
@@ -255,7 +260,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 				screen.ShowTextType = (showLabels && flag)
 					? NavObjectScreenSettings.ShowTextTypes.Name
 					: NavObjectScreenSettings.ShowTextTypes.None;
-				screen.FontSize = 12;
+				screen.FontSize = FontSize;
 			}
 		}
 	}
