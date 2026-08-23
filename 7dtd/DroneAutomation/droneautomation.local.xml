@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  droneautomation.local.xml — server-local overrides merged on top of droneautomation.xml.
+  Only set attributes you want to change; absent ones keep the base-file default.
+
+  Root attributes
+    WorkWhileParked  : true  = drone vacuums/acts while on its sentry stand (default false)
+    MaxOwnerDistance : max metres from owner before block-work stops (0 = unlimited, default 25)
+    Debug            : true enables verbose logging (default false)
+
+  autoLoot attributes (VacuumSettings)
+    Radius           : horizontal container-detection radius in metres (default 8)
+    EntityRadius     : horizontal drop/item entity radius in metres (default 15)
+    VerticalRadius   : vertical scan radius in metres (default 6)
+    SpeedMultiplier  : vacuum animation speed (default 1.0)
+    MinSecondsPerTarget : minimum seconds spent per loot container (default 0.25)
+    ItemPickupSeconds   : seconds to animate picking up one item stack (default 0.25)
+    MaxCatchupSeconds   : max seconds of "catch-up" per tick when behind (default 5)
+    SkipIfPlayerWithin  : skip containers that a player is within N metres of (0 = disabled)
+    ThrownGraceSeconds  : ignore player-thrown items for this many seconds (default 5)
+    LowQualityReach     : quality threshold below which reach is reduced (default 0.55)
+    LowQualityTimeMult  : time multiplier for low-quality items (default 2.0)
+-->
+<droneautomation WorkWhileParked="true" MaxOwnerDistance="0">
+  <autoLoot
+    Radius="20"
+    EntityRadius="25"
+    VerticalRadius="10"
+    SpeedMultiplier="1.5"
+    SkipIfPlayerWithin="3"
+  />
+</droneautomation>

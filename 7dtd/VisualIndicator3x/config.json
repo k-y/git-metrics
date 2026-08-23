@@ -1,0 +1,12 @@
+{
+  "ToggleKey": "Semicolon",
+  "DetectionRadius": 50.0,
+  "UpdateInterval": 3.0,
+  "DebugLogging": false,
+  "ShowDistance": true,
+  "ShowLabels": true,
+  "ShowCompassIcons": true,
+  "ShowOnScreenIcons": true,
+  "ShowMapIcons": true,
+  "AutoEnable": true
+}

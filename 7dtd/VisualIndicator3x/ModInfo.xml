@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xml>
+  <Name value="TechFreqsVisualIndicator" />
+  <DisplayName value="TechFreqs Visual Indicator" />
+  <Version value="3.0" />
+  <Description value="Entity radar with configurable detection radius, compass/map/screen icons, and labels. Toggle with the configured key (default Semicolon)." />
+  <Author value="TechFreq" />
+  <Website value="" />
+</xml>
