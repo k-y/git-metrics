@@ -194,7 +194,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 	private static void CreateDefaultConfig()
 	{
 		Config config = new Config();
-		File.WriteAllText(configPath, JsonConvert.SerializeObject((object)config, (Formatting)1));
+		File.WriteAllText(configPath, JsonConvert.SerializeObject((object)config, Newtonsoft.Json.Formatting.Indented));
 		Log("Default config.json created");
 	}
 
