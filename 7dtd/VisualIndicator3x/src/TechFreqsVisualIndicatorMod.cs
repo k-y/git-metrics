@@ -200,7 +200,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 
 	private static void UpdateEntityDetector(EntityPlayerLocal player)
 	{
-		if (((Entity)(player?)).world?.Entities?.dict == null || NavObjectManager.Instance == null)
+		if (player == null || ((Entity)player).world?.Entities?.dict == null || NavObjectManager.Instance == null)
 		{
 			return;
 		}
