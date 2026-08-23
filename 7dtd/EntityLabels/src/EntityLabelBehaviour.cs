@@ -8,11 +8,17 @@ namespace EntityLabels
         bool _visible;
         GUIStyle _fg;
         GUIStyle _shadow;
+        Camera _cam;
 
         void Update()
         {
             if (Input.GetKeyDown(Config.ToggleKey))
                 _visible = !_visible;
+
+            // Keep camera reference fresh; done in Update (cheap) not OnGUI
+            var local = GameManager.Instance?.World?.GetPrimaryPlayer();
+            if (local != null)
+                _cam = FindWorldCamera(local.position);
         }
 
         void OnGUI()
@@ -24,7 +30,7 @@ namespace EntityLabels
 
             var world = GameManager.Instance?.World;
             if (world == null) return;
-            var cam = Camera.main;
+            var cam = _cam ?? Camera.main;
             if (cam == null) return;
             var local = world.GetPrimaryPlayer();
             if (local == null) return;
@@ -151,6 +157,22 @@ namespace EntityLabels
                 case EntityCategory.Boss:     return Config.BossColor;
                 default: return Color.white;
             }
+        }
+
+        // Camera.main is often an auxiliary camera in 7DTD. Find the enabled camera
+        // that is closest to the player and has the greatest draw distance — that is
+        // the first-person world camera.
+        static Camera FindWorldCamera(Vector3 playerPos)
+        {
+            Camera best = null;
+            float bestFar = 0f;
+            foreach (var c in Camera.allCameras)
+            {
+                if (!c.enabled || !c.gameObject.activeInHierarchy) continue;
+                if (Vector3.Distance(c.transform.position, playerPos) > 5f) continue;
+                if (c.farClipPlane > bestFar) { bestFar = c.farClipPlane; best = c; }
+            }
+            return best;
         }
     }
 }
