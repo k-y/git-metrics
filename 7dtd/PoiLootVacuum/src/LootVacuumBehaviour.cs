@@ -34,8 +34,11 @@ namespace PoiLootVacuum
                 if (cm == null || cm.IsServer)
                     Collect(world, player, Config.Radius, false);
                 else
+                {
+                    Tip(player, $"[CL] Vacuuming r={Config.Radius:F0}m...");
                     cm.SendToServer(NetPackageManager.GetPackage<NetPackagePoiVacuum>()
                         .Setup(player.entityId, Config.Radius), false);
+                }
             }
         }
 
@@ -277,20 +280,21 @@ namespace PoiLootVacuum
                 if (loot.bPlayerStorage || string.IsNullOrEmpty(loot.lootListName)) return;
                 if (loot.IsUserAccessing() || IsLocked((ILockTarget)(object)loot)) return;
 
-                bool touched = loot.bTouched;
-                bool isEmpty = loot.IsEmpty();
-                if ((!touched && !isEmpty) || (touched && isEmpty)) return;
+                if (loot.bTouched && loot.IsEmpty()) return;
 
-                if (!touched && lm != null)
+                if (!loot.bTouched)
                 {
-                    try
+                    if (lm != null)
                     {
-                        var bv = ((WorldBase)world).GetBlock(te.ToWorldPos());
-                        lm.LootContainerOpened(loot, playerId, bv.Block.Tags);
-                        loot.bTouched = true;
+                        try
+                        {
+                            var bv = ((WorldBase)world).GetBlock(te.ToWorldPos());
+                            lm.LootContainerOpened(loot, playerId, bv.Block.Tags);
+                            rolled++;
+                        }
+                        catch { }
                     }
-                    catch { }
-                    rolled++;
+                    loot.bTouched = true;
                 }
 
                 if (TransferItems(loot.items, droneBag, dests, player, ref stacks))
