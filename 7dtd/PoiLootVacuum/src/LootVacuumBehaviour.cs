@@ -160,10 +160,7 @@ namespace PoiLootVacuum
                     }
                 }
                 if (any)
-                {
                     bag.onBackpackChanged();
-                    te.SetModified();
-                }
             }
             catch { }
         }
