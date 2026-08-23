@@ -112,7 +112,7 @@ namespace PoiLootVacuum
                 for (int i = 0; i < list.Count; i++)
                     if (list[i].ToWorldPos() == pos) { te = list[i]; break; }
                 if (te == null) return;
-                te.OnAccessServer(player);
+                GameManager.Instance.TEAccessServer(player, pos.x, pos.y, pos.z);
             }
             catch { }
         }
