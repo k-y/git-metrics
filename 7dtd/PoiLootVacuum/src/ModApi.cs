@@ -30,6 +30,10 @@ namespace PoiLootVacuum
                 if (keyVal != null && Enum.TryParse<KeyCode>(keyVal, true, out var k))
                     Config.CollectKey = k;
 
+                string magnetKeyVal = Attr(root, "MagnetKey");
+                if (magnetKeyVal != null && Enum.TryParse<KeyCode>(magnetKeyVal, true, out var mk))
+                    Config.MagnetKey = mk;
+
                 string rad = Attr(root, "Radius");
                 if (rad != null && float.TryParse(rad, out float r))
                     Config.Radius = r;

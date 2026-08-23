@@ -6,9 +6,19 @@ namespace PoiLootVacuum
 {
     public class LootVacuumBehaviour : MonoBehaviour
     {
+        static Queue<Vector3i> _magnetQueue;
+        static int _magnetTotal;
+
         void Update()
         {
-            if (!Input.GetKeyDown(Config.CollectKey)) return;
+            if (Input.GetKeyDown(Config.CollectKey))
+                OnVacuumKey();
+            else if (Input.GetKeyDown(Config.MagnetKey))
+                OnMagnetKey();
+        }
+
+        void OnVacuumKey()
+        {
             var world = GameManager.Instance?.World;
             var player = world?.GetPrimaryPlayer();
             if (player == null) return;
@@ -27,6 +37,84 @@ namespace PoiLootVacuum
                     cm.SendToServer(NetPackageManager.GetPackage<NetPackagePoiVacuum>()
                         .Setup(player.entityId, Config.Radius), false);
             }
+        }
+
+        void OnMagnetKey()
+        {
+            var world = GameManager.Instance?.World;
+            var player = world?.GetPrimaryPlayer();
+            if (player == null) return;
+
+            bool reset = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+            if (reset)
+            {
+                _magnetQueue = null;
+                Tip(player, "[Magnet] Queue cleared.");
+                return;
+            }
+
+            // If a queue is active, open the next container
+            if (_magnetQueue != null && _magnetQueue.Count > 0)
+            {
+                var pos = _magnetQueue.Dequeue();
+                int done = _magnetTotal - _magnetQueue.Count;
+                Tip(player, $"[Magnet] {done}/{_magnetTotal} – loot it, then press {Config.MagnetKey} for next.");
+                SendMagnetOpen(world, player, pos);
+                return;
+            }
+
+            // Scan and build a fresh queue
+            var playerPos = player.position;
+            var queue = new Queue<Vector3i>();
+            ForEachTileEntity(world, playerPos, Config.Radius, te =>
+            {
+                if (!TileEntityExtensions.TryGetSelfOrFeature<ITileEntityLootable>((ITileEntity)(object)te, out var loot)) return;
+                if (loot.bPlayerStorage || string.IsNullOrEmpty(loot.lootListName)) return;
+                if (loot.bTouched && loot.IsEmpty()) return;
+                if (IsLocked((ILockTarget)(object)loot)) return;
+                queue.Enqueue(te.ToWorldPos());
+            });
+
+            if (queue.Count == 0)
+            {
+                Tip(player, $"[Magnet] No containers found within {Config.Radius:F0}m.");
+                return;
+            }
+
+            _magnetTotal = queue.Count;
+            _magnetQueue = queue;
+
+            var firstPos = _magnetQueue.Dequeue();
+            Tip(player, $"[Magnet] Found {_magnetTotal} containers. Opening 1/{_magnetTotal}...");
+            SendMagnetOpen(world, player, firstPos);
+        }
+
+        static void SendMagnetOpen(World world, EntityPlayer player, Vector3i pos)
+        {
+            var cm = SingletonMonoBehaviour<ConnectionManager>.Instance;
+            if (cm == null || cm.IsServer)
+                MagnetOpen(world, player, pos);
+            else
+                cm.SendToServer(NetPackageManager.GetPackage<NetPackageMagnetOpen>()
+                    .Setup(player.entityId, pos), false);
+        }
+
+        internal static void MagnetOpen(World world, EntityPlayer player, Vector3i pos)
+        {
+            try
+            {
+                int cx = World.toChunkXZ(pos.x);
+                int cz = World.toChunkXZ(pos.z);
+                var chunk = ((WorldBase)world).GetChunkSync(cx, cz) as Chunk;
+                if (chunk == null) return;
+                var list = chunk.GetTileEntities().list;
+                TileEntity te = null;
+                for (int i = 0; i < list.Count; i++)
+                    if (list[i].ToWorldPos() == pos) { te = list[i]; break; }
+                if (te == null) return;
+                te.OnAccessServer(player);
+            }
+            catch { }
         }
 
         internal static void Collect(World world, EntityPlayer player, float radius, bool scanOnly)

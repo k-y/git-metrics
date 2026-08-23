@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   PoiLootVacuum client-side config.
-  CollectKey : any UnityEngine.KeyCode name (e.g. F9, F10, KeypadPlus)
+  CollectKey : any UnityEngine.KeyCode name (e.g. F9, F10, KeypadPlus) — auto-vacuum to storage
+  MagnetKey  : hotkey for Loot Magnet mode (default F12) — opens each nearby container's UI for you
+               Press once to scan + open first; press again after looting to open the next.
+               Shift+MagnetKey clears the queue.
   Radius     : collection radius in metres (3D sphere).
                40 covers most POIs from inside; 80-100 for large POIs (skyscrapers, factories).
                Effective ceiling is ~150 — beyond that chunks are unloaded and nothing extra is found.
@@ -24,6 +27,7 @@
 -->
 <PoiLootVacuum>
   <CollectKey value="F10" />
+  <MagnetKey value="F12" />
   <Radius value="40" />
   <!-- Collect everything regardless of tag/category settings -->
   <PickupAll value="false" />
