@@ -113,11 +113,10 @@ namespace EntityLabels
 
         static string GetDisplayName(EntityAlive entity)
         {
-            if (entity is EntityPlayer ep)
-                return ep.PlayerName ?? "";
-
-            string key = entity.EntityName;
+            string key = entity.EntityName ?? "";
             if (string.IsNullOrEmpty(key)) return "";
+            if (entity is EntityPlayer)
+                return key; // player names are not localization keys
             try
             {
                 string loc = Localization.Get(key);
