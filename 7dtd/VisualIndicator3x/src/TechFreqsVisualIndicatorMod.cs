@@ -254,7 +254,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 				name = showDistance ? $"{label} {num:F0}m" : label;
 		}
 		bool flag = showOnScreenIcons || showLabels;
-		NavObject val = NavObjectManager.Instance.RegisterNavObject("quest", (Entity)(object)entity, "", !showCompassIcons);
+		NavObject val = NavObjectManager.Instance.RegisterNavObject(GetNavObjectClass(entity), (Entity)(object)entity, "", !showCompassIcons);
 		if (val != null)
 		{
 			entityNavObjects[key] = val;
@@ -276,20 +276,36 @@ public class TechFreqsVisualIndicatorMod : IModApi
 		}
 	}
 
-	private static string GetSprite(EntityAlive e)
+	private static string GetNavObjectClass(EntityAlive e)
 	{
-		string text = ((Entity)e).EntityClass.entityClassName.ToLowerInvariant();
-		if (text.Contains("zombie"))                          return "ui_game_symbol_enemy_dot";
-		if (text.Contains("bear"))                            return "ui_game_symbol_tracking_bear";
-		if (text.Contains("direwolf") || text.Contains("wolf")) return "ui_game_symbol_tracking_wolf";
-		if (text.Contains("lion"))                            return "ui_game_symbol_tracking_mountain_lion";
-		if (text.Contains("snake"))                           return "ui_game_symbol_tracking_snake";
-		if (text.Contains("boar") || text.Contains("pig"))   return "ui_game_symbol_tracking_pig";
-		if (text.Contains("deer") || text.Contains("stag"))  return "ui_game_symbol_tracking_deer";
-		if (text.Contains("rabbit"))                          return "ui_game_symbol_tracking_rabbit";
-		if (text.Contains("chicken"))                         return "ui_game_symbol_tracking_chicken";
-		if (e is EntityAnimal)                                return "ui_game_symbol_tracking_deer";
-		return "ui_game_symbol_enemy_dot";
+		string cn = ((Entity)e).EntityClass.entityClassName.ToLowerInvariant();
+		if (cn.Contains("zombie") || cn.Contains("boss") || cn.Contains("feral") ||
+		    cn.Contains("radiated") || cn.Contains("elite"))
+		{
+			if (cn.Contains("boss"))     return "EnemyBoss";
+			if (cn.Contains("mini"))     return "EnemyMiniboss";
+			if (cn.Contains("radiated")) return "EnemyRadiated";
+			if (cn.Contains("feral"))    return "EnemyFeral";
+			if (cn.Contains("elite"))    return "EnemyElite";
+			return "EnemyZombie";
+		}
+		if (cn.Contains("vulture"))      return "EnemyVulture";
+		if (e is EntityAnimal)
+		{
+			if (cn.Contains("bear"))            return "animaltracking_bear";
+			if (cn.Contains("direwolf"))        return "animaltracking_direwolf";
+			if (cn.Contains("wolf"))            return "animaltracking_wolf";
+			if (cn.Contains("mountainlion") || cn.Contains("lion")) return "animaltracking_mountainlion";
+			if (cn.Contains("snake"))           return "animaltracking_snake";
+			if (cn.Contains("coyote"))          return "animaltracking_coyote";
+			if (cn.Contains("boar"))            return "animaltracking_boar";
+			if (cn.Contains("stag"))            return "animaltracking_stag";
+			if (cn.Contains("doe"))             return "animaltracking_doe";
+			if (cn.Contains("rabbit"))          return "animaltracking_rabbit";
+			if (cn.Contains("chicken"))         return "animaltracking_chicken";
+			return "animaltracking_timid";
+		}
+		return "EnemyDot";
 	}
 
 	private static string BuildShortLabel(EntityAlive entity)
