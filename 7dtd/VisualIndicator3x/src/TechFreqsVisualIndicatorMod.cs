@@ -283,7 +283,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 		string text = ((Entity)e).EntityClass.entityClassName.ToLowerInvariant();
 		if (text.Contains("zombie"))
 		{
-			return "ui_game_symbol_zombie";
+			return "ui_game_symbol_enemy_dot";
 		}
 		if (text.Contains("bear"))
 		{
