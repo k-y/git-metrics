@@ -381,8 +381,8 @@ public class TechFreqsVisualIndicatorMod : IModApi
 			entityNavObjects[key] = val;
 			val.name = name;
 			val.usingLocalizationId = false;
-			val.hiddenOnCompass = !ShowCompassIcons;
-			val.hiddenOnMap = !ShowMapIcons;
+			val.hiddenOnCompass = true;
+			val.hiddenOnMap = true;
 			val.UseOverrideColor = true;
 			val.OverrideColor = GetContainerColor(label);
 			if (val.CurrentScreenSettings is NavObjectScreenSettings screen)
