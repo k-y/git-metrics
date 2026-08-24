@@ -249,8 +249,9 @@ public class TechFreqsVisualIndicatorMod : IModApi
 		string name = "";
 		if (showLabels)
 		{
-			string text = ((!string.IsNullOrEmpty(((Entity)entity).GetDebugName())) ? ((Entity)entity).GetDebugName() : ((Entity)entity).EntityClass.entityClassName);
-			name = ((!showDistance) ? text : ((num <= 5f) ? (text + " [Close]") : $"{text}, {num:F1}m"));
+			string label = BuildShortLabel(entity);
+			if (!string.IsNullOrEmpty(label))
+				name = showDistance ? $"{label} {num:F0}m" : label;
 		}
 		bool flag = showOnScreenIcons || showLabels;
 		string text2 = ((showCompassIcons || showOnScreenIcons) ? GetSprite(entity) : null);
@@ -300,6 +301,18 @@ public class TechFreqsVisualIndicatorMod : IModApi
 			return "ui_game_symbol_animal";
 		}
 		return "ui_game_symbol_enemy";
+	}
+
+	private static string BuildShortLabel(EntityAlive entity)
+	{
+		string cn = ((Entity)entity).EntityClass?.entityClassName?.ToLowerInvariant() ?? "";
+		if (cn.Contains("zombie"))  return "Z";
+		if (cn.Contains("trader"))  return "Trader";
+		if (cn.Contains("drone"))   return "Drone";
+		if (entity is EntityAnimal) return "";   // icon only, no text
+		// players: use their actual name
+		string debugName = ((Entity)entity).GetDebugName();
+		return string.IsNullOrEmpty(debugName) ? cn : debugName;
 	}
 
 	private static bool IsHostile(EntityAlive e)
