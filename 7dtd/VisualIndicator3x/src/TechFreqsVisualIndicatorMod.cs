@@ -7,33 +7,6 @@ using UnityEngine;
 
 namespace TechFreqsVisualIndicatorMod;
 
-// Handles key toggle in Unity's Update loop — no Harmony dependency needed.
-internal class ToggleBehaviour : MonoBehaviour
-{
-	void Awake()
-	{
-		Debug.Log("[TechFreqs Visual Indicator] ToggleBehaviour Awake — Update loop starting");
-	}
-
-	void Update()
-	{
-		if (Input.anyKeyDown)
-			Debug.Log("[TechFreqs Visual Indicator] Update running — key: " + TechFreqsVisualIndicatorMod.ToggleKey);
-		if (!Input.GetKeyDown(TechFreqsVisualIndicatorMod.ToggleKey)) return;
-		Debug.Log("[TechFreqs Visual Indicator] Toggle key detected: " + TechFreqsVisualIndicatorMod.ToggleKey);
-		var world = GameManager.Instance?.World;
-		var player = world != null ? ((WorldBase)world).GetPrimaryPlayer() : null;
-		if (player == null)           { Debug.Log("[TechFreqs Visual Indicator] Toggle blocked: no player");      return; }
-		if (((Entity)player).isEntityRemote) { Debug.Log("[TechFreqs Visual Indicator] Toggle blocked: isEntityRemote"); return; }
-		if (!((Entity)player).IsSpawned())   { Debug.Log("[TechFreqs Visual Indicator] Toggle blocked: not spawned");    return; }
-		TechFreqsVisualIndicatorMod.IndicatorsEnabled = !TechFreqsVisualIndicatorMod.IndicatorsEnabled;
-		Debug.Log("[TechFreqs Visual Indicator] Toggled to: " + TechFreqsVisualIndicatorMod.IndicatorsEnabled);
-		GameManager.ShowTooltip(player, "[TechFreqs Visual Indicator] " +
-			(TechFreqsVisualIndicatorMod.IndicatorsEnabled ? "ENABLED" : "DISABLED"), false, false, 0f);
-		if (!TechFreqsVisualIndicatorMod.IndicatorsEnabled)
-			TechFreqsVisualIndicatorMod.DisableDetectorPublic();
-	}
-}
 
 public class TechFreqsVisualIndicatorMod : IModApi
 {
@@ -104,12 +77,10 @@ public class TechFreqsVisualIndicatorMod : IModApi
 		_modInstance = modInstance;
 		configPath = Path.Combine(modInstance.Path, "config.json");
 		Log("<color=cyan>TechFreqs Visual Indicator v3.0 LOADED</color>");
-		var go = new GameObject("TechFreqsVisualIndicator");
-		UnityEngine.Object.DontDestroyOnLoad(go);
-		go.AddComponent<ToggleBehaviour>();
 		LoadConfig();
 		IndicatorsEnabled = AutoEnable;
 		((MonoBehaviour)GameManager.Instance).StartCoroutine(MainLoop());
+		((MonoBehaviour)GameManager.Instance).StartCoroutine(InputLoop());
 	}
 
 	private static IEnumerator MainLoop()
@@ -138,6 +109,26 @@ public class TechFreqsVisualIndicatorMod : IModApi
 				}
 			}
 			yield return (object)new WaitForSeconds(UpdateInterval);
+		}
+	}
+
+	private static IEnumerator InputLoop()
+	{
+		while (true)
+		{
+			if (Input.GetKeyDown(ToggleKey))
+			{
+				var world = GameManager.Instance?.World;
+				var player = world != null ? ((WorldBase)world).GetPrimaryPlayer() : null;
+				if (player != null && !((Entity)player).isEntityRemote && ((Entity)player).IsSpawned())
+				{
+					IndicatorsEnabled = !IndicatorsEnabled;
+					GameManager.ShowTooltip(player, MOD_PREFIX +
+						(IndicatorsEnabled ? "ENABLED" : "DISABLED"), false, false, 0f);
+					if (!IndicatorsEnabled) DisableDetector();
+				}
+			}
+			yield return null;
 		}
 	}
 
