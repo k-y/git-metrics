@@ -10,8 +10,15 @@ namespace TechFreqsVisualIndicatorMod;
 // Handles key toggle in Unity's Update loop — no Harmony dependency needed.
 internal class ToggleBehaviour : MonoBehaviour
 {
+	void Awake()
+	{
+		Debug.Log("[TechFreqs Visual Indicator] ToggleBehaviour Awake — Update loop starting");
+	}
+
 	void Update()
 	{
+		if (Input.anyKeyDown)
+			Debug.Log("[TechFreqs Visual Indicator] Update running — key: " + TechFreqsVisualIndicatorMod.ToggleKey);
 		if (!Input.GetKeyDown(TechFreqsVisualIndicatorMod.ToggleKey)) return;
 		Debug.Log("[TechFreqs Visual Indicator] Toggle key detected: " + TechFreqsVisualIndicatorMod.ToggleKey);
 		var world = GameManager.Instance?.World;
