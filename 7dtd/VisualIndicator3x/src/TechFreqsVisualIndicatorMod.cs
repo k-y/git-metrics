@@ -354,7 +354,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 	private static Color GetContainerColor(string label) => label switch
 	{
 		"yel"   => new Color(1f,   0.9f,  0f,   0.8f),
-		"blu"   => new Color(0.3f, 0.5f,  1f,   0.8f),
+		"blu"   => new Color(0f,   0.4f,  1f,   1f),
 		"org"   => new Color(1f,   0.55f, 0f,   0.8f),
 		"red"   => new Color(1f,   0.1f,  0.1f, 0.8f),
 		"mini"  => new Color(0.9f, 0f,    0.9f, 0.8f),
