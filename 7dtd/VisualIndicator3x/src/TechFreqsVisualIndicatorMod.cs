@@ -281,27 +281,17 @@ public class TechFreqsVisualIndicatorMod : IModApi
 	private static string GetSprite(EntityAlive e)
 	{
 		string text = ((Entity)e).EntityClass.entityClassName.ToLowerInvariant();
-		if (text.Contains("zombie"))
-		{
-			return "ui_game_symbol_enemy_dot";
-		}
-		if (text.Contains("bear"))
-		{
-			return "ui_game_symbol_tracking_bear";
-		}
-		if (text.Contains("direwolf") || text.Contains("wolf"))
-		{
-			return "ui_game_symbol_tracking_wolf";
-		}
-		if (text.Contains("vulture"))
-		{
-			return "ui_game_symbol_bat";
-		}
-		if (e is EntityAnimal)
-		{
-			return "ui_game_symbol_animal";
-		}
-		return "ui_game_symbol_enemy";
+		if (text.Contains("zombie"))                          return "ui_game_symbol_enemy_dot";
+		if (text.Contains("bear"))                            return "ui_game_symbol_tracking_bear";
+		if (text.Contains("direwolf") || text.Contains("wolf")) return "ui_game_symbol_tracking_wolf";
+		if (text.Contains("lion"))                            return "ui_game_symbol_tracking_mountain_lion";
+		if (text.Contains("snake"))                           return "ui_game_symbol_tracking_snake";
+		if (text.Contains("boar") || text.Contains("pig"))   return "ui_game_symbol_tracking_pig";
+		if (text.Contains("deer") || text.Contains("stag"))  return "ui_game_symbol_tracking_deer";
+		if (text.Contains("rabbit"))                          return "ui_game_symbol_tracking_rabbit";
+		if (text.Contains("chicken"))                         return "ui_game_symbol_tracking_chicken";
+		if (e is EntityAnimal)                                return "ui_game_symbol_tracking_deer";
+		return "ui_game_symbol_enemy_dot";
 	}
 
 	private static string BuildShortLabel(EntityAlive entity)
