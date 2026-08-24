@@ -366,7 +366,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 		string name = "";
 		if (ShowLabels)
 			name = ShowDistance ? $"{label} {dist:F0}m" : label;
-		NavObject val = NavObjectManager.Instance.RegisterNavObject("quest", entity, "ui_game_symbol_loot", !ShowCompassIcons);
+		NavObject val = NavObjectManager.Instance.RegisterNavObject("quest", entity, "ui_game_symbol_loot_sack", !ShowCompassIcons);
 		if (val != null)
 		{
 			entityNavObjects[key] = val;
