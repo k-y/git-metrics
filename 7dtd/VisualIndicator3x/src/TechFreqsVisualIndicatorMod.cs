@@ -218,22 +218,32 @@ public class TechFreqsVisualIndicatorMod : IModApi
 	private static void UpdateEntityDetector(EntityPlayerLocal player)
 	{
 		if (player == null || ((Entity)player).world?.Entities?.dict == null || NavObjectManager.Instance == null)
-		{
 			return;
-		}
 		foreach (NavObject value2 in entityNavObjects.Values)
-		{
 			NavObjectManager.Instance.UnRegisterNavObject(value2);
-		}
 		entityNavObjects.Clear();
 		foreach (KeyValuePair<int, Entity> item in ((Entity)player).world.Entities.dict)
 		{
 			Entity value = item.Value;
-			EntityAlive val = (EntityAlive)(object)((value is EntityAlive) ? value : null);
-			if (val != null && ((Entity)val).entityId != ((Entity)player).entityId && ((Entity)val).IsAlive() && !((Entity)val).IsDespawned && !(Vector3.Distance(((Entity)player).position, ((Entity)val).position) > DetectionRadius))
+			if (value == null || value.entityId == ((Entity)player).entityId || value.IsDespawned) continue;
+			if (Vector3.Distance(((Entity)player).position, value.position) > DetectionRadius) continue;
+
+			EntityAlive alive = value as EntityAlive;
+			if (alive != null)
 			{
-				string key = $"entity_{((Entity)val).entityId}";
-				CreateOrUpdateNavObject(player, key, val);
+				if (((Entity)alive).IsAlive())
+				{
+					string key = $"entity_{value.entityId}";
+					CreateOrUpdateNavObject(player, key, alive);
+				}
+				continue;
+			}
+
+			string containerLabel = GetContainerLabel(value);
+			if (containerLabel != null)
+			{
+				string key = $"container_{value.entityId}";
+				CreateOrUpdateContainerNavObject(player, key, value, containerLabel);
 			}
 		}
 	}
@@ -324,6 +334,67 @@ public class TechFreqsVisualIndicatorMod : IModApi
 			return text.Contains("vulture");
 		}
 		return true;
+	}
+
+	private static string GetContainerLabel(Entity entity)
+	{
+		string cn = entity.EntityClass?.entityClassName;
+		if (string.IsNullOrEmpty(cn)) return null;
+		string cnl = cn.ToLowerInvariant();
+		if (cn == "BossLootContainerCarrier")                                    return "chest";
+		if (cnl.StartsWith("bosslootcontainer"))                                 return "box";
+		if (cn == "MiniBossLootContainer")                                       return "mini";
+		if (cn == "ChargedEliteLootContainer" || cn == "InfernalEliteLootContainer") return "red";
+		if (cnl.Contains("smallminiboss"))                                       return "red";
+		if (cnl.StartsWith("entitylootcontainer"))
+		{
+			if (cnl.Contains("strong")) return "blu";
+			if (cnl.Contains("plague")) return "org";
+			if (cnl.Contains("boss"))   return "red";
+			return "yel";
+		}
+		return null;
+	}
+
+	private static Color GetContainerColor(string label) => label switch
+	{
+		"yel"   => new Color(1f,   0.9f,  0f,   0.8f),
+		"blu"   => new Color(0.3f, 0.5f,  1f,   0.8f),
+		"org"   => new Color(1f,   0.55f, 0f,   0.8f),
+		"red"   => new Color(1f,   0.1f,  0.1f, 0.8f),
+		"mini"  => new Color(0.9f, 0f,    0.9f, 0.8f),
+		"box"   => new Color(1f,   0.3f,  0.7f, 0.8f),
+		"chest" => new Color(1f,   0.85f, 0f,   0.8f),
+		_       => new Color(1f,   1f,    1f,   0.8f),
+	};
+
+	private static void CreateOrUpdateContainerNavObject(EntityPlayerLocal player, string key, Entity entity, string label)
+	{
+		float dist = Vector3.Distance(((Entity)player).position, entity.position);
+		bool flag = ShowOnScreenIcons || ShowLabels;
+		string name = "";
+		if (ShowLabels)
+			name = ShowDistance ? $"{label} {dist:F0}m" : label;
+		NavObject val = NavObjectManager.Instance.RegisterNavObject("quest", entity, "ui_game_symbol_loot", !ShowCompassIcons);
+		if (val != null)
+		{
+			entityNavObjects[key] = val;
+			val.name = name;
+			val.usingLocalizationId = false;
+			val.hiddenOnCompass = !ShowCompassIcons;
+			val.hiddenOnMap = !ShowMapIcons;
+			val.UseOverrideColor = true;
+			val.OverrideColor = GetContainerColor(label);
+			if (val.CurrentScreenSettings is NavObjectScreenSettings screen)
+			{
+				screen.MaxDistance = flag ? DetectionRadius : 0f;
+				screen.MinDistance = 0f;
+				screen.ShowTextType = (ShowLabels && flag)
+					? NavObjectScreenSettings.ShowTextTypes.Name
+					: NavObjectScreenSettings.ShowTextTypes.None;
+				screen.FontSize = FontSize;
+			}
+		}
 	}
 
 	internal static void DisableDetectorPublic() => DisableDetector();
