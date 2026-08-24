@@ -306,10 +306,11 @@ public class TechFreqsVisualIndicatorMod : IModApi
 	private static string BuildShortLabel(EntityAlive entity)
 	{
 		string cn = ((Entity)entity).EntityClass?.entityClassName?.ToLowerInvariant() ?? "";
+		if (cn.Contains("boss"))    return "BOSS";   // before zombie — boss names often contain "zombie"
 		if (cn.Contains("zombie"))  return "Z";
 		if (cn.Contains("trader"))  return "Trader";
 		if (cn.Contains("drone"))   return "Drone";
-		if (entity is EntityAnimal) return "";   // icon only, no text
+		if (entity is EntityAnimal) return "";        // icon only, no text
 		// players: use their actual name
 		string debugName = ((Entity)entity).GetDebugName();
 		return string.IsNullOrEmpty(debugName) ? cn : debugName;
