@@ -219,22 +219,21 @@ public class TechFreqsVisualIndicatorMod : IModApi
 			if (value == null || value.entityId == ((Entity)player).entityId || value.IsDespawned) continue;
 			if (Vector3.Distance(((Entity)player).position, value.position) > DetectionRadius) continue;
 
-			EntityAlive alive = value as EntityAlive;
-			if (alive != null)
-			{
-				if (((Entity)alive).IsAlive())
-				{
-					string key = $"entity_{value.entityId}";
-					CreateOrUpdateNavObject(player, key, alive);
-				}
-				continue;
-			}
-
+			// Container check first — EntityLootContainer may extend EntityAlive,
+			// so match by class name before IsAlive() would silently skip it.
 			string containerLabel = GetContainerLabel(value);
 			if (containerLabel != null)
 			{
 				string key = $"container_{value.entityId}";
 				CreateOrUpdateContainerNavObject(player, key, value, containerLabel);
+				continue;
+			}
+
+			EntityAlive alive = value as EntityAlive;
+			if (alive != null && ((Entity)alive).IsAlive())
+			{
+				string key = $"entity_{value.entityId}";
+				CreateOrUpdateNavObject(player, key, alive);
 			}
 		}
 	}
@@ -255,8 +254,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 				name = showDistance ? $"{label} {num:F0}m" : label;
 		}
 		bool flag = showOnScreenIcons || showLabels;
-		string text2 = ((showCompassIcons || showOnScreenIcons) ? GetSprite(entity) : null);
-		NavObject val = NavObjectManager.Instance.RegisterNavObject("quest", (Entity)(object)entity, text2, !showCompassIcons);
+		NavObject val = NavObjectManager.Instance.RegisterNavObject("quest", (Entity)(object)entity, "", !showCompassIcons);
 		if (val != null)
 		{
 			entityNavObjects[key] = val;
