@@ -312,7 +312,13 @@ public class TechFreqsVisualIndicatorMod : IModApi
 	{
 		string cn = ((Entity)entity).EntityClass?.entityClassName?.ToLowerInvariant() ?? "";
 		if (cn.Contains("boss"))    return "BOSS";
-		if (cn.Contains("zombie"))  return "Z";
+		if (cn.Contains("zombie"))
+		{
+			string orig = ((Entity)entity).EntityClass?.entityClassName ?? "";
+			int idx = orig.IndexOf("zombie", StringComparison.OrdinalIgnoreCase);
+			string suffix = idx >= 0 ? orig.Substring(idx + 6).TrimStart('_') : "";
+			return string.IsNullOrEmpty(suffix) ? "Z" : "Z " + suffix;
+		}
 		if (cn.Contains("trader"))  return "Trader";
 		if (cn.Contains("drone"))   return "Drone";
 		if (entity is EntityAnimal || cn.Contains("snake") || cn.Contains("vulture"))
