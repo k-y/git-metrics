@@ -254,7 +254,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 				name = showDistance ? $"{label} {num:F0}m" : label;
 		}
 		bool flag = showOnScreenIcons || showLabels;
-		NavObject val = NavObjectManager.Instance.RegisterNavObject("quest", (Entity)(object)entity, "", !showCompassIcons);
+		NavObject val = NavObjectManager.Instance.RegisterNavObject("quest", (Entity)(object)entity, "ui_game_symbol_enemy_dot", !showCompassIcons);
 		if (val != null)
 		{
 			entityNavObjects[key] = val;
