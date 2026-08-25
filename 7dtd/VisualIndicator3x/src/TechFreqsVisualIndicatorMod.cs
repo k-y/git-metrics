@@ -317,6 +317,10 @@ public class TechFreqsVisualIndicatorMod : IModApi
 			string orig = ((Entity)entity).EntityClass?.entityClassName ?? "";
 			int idx = orig.IndexOf("zombie", StringComparison.OrdinalIgnoreCase);
 			string suffix = idx >= 0 ? orig.Substring(idx + 6).TrimStart('_') : "";
+			if (suffix.StartsWith("Male", StringComparison.OrdinalIgnoreCase))
+				suffix = suffix.Substring(4).TrimStart('_');
+			else if (suffix.StartsWith("Female", StringComparison.OrdinalIgnoreCase))
+				suffix = suffix.Substring(6).TrimStart('_');
 			return string.IsNullOrEmpty(suffix) ? "Z" : "Z " + suffix;
 		}
 		if (cn.Contains("trader"))  return "Trader";
