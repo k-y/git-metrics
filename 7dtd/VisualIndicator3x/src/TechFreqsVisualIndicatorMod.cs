@@ -275,6 +275,8 @@ public class TechFreqsVisualIndicatorMod : IModApi
 		bool showMapIcons = ShowMapIcons;
 		bool flag = showOnScreenIcons || showLabels;
 		val = NavObjectManager.Instance.RegisterNavObject(GetNavObjectClass(entity), (Entity)(object)entity, GetSprite(entity), !showCompassIcons);
+		if (val == null)
+			val = NavObjectManager.Instance.RegisterNavObject("quest", (Entity)(object)entity, GetSprite(entity), !showCompassIcons);
 		if (val == null) return;
 		entityNavObjects[key] = val;
 		val.name = name;
@@ -442,6 +444,8 @@ public class TechFreqsVisualIndicatorMod : IModApi
 
 		bool flag = ShowOnScreenIcons || ShowLabels;
 		val = NavObjectManager.Instance.RegisterNavObject("TFVIcontainer", entity, "ui_game_symbol_loot_sack", false);
+		if (val == null)
+			val = NavObjectManager.Instance.RegisterNavObject("quest", entity, "ui_game_symbol_loot_sack", false);
 		if (val == null) return;
 		entityNavObjects[key] = val;
 		val.name = name;
