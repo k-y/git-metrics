@@ -145,6 +145,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 			{
 				lastConfigWriteTime = lastWriteTime;
 				LoadConfig();
+				DisableDetector();
 				IndicatorsEnabled = AutoEnable;
 				GameManager instance = GameManager.Instance;
 				object obj;
@@ -210,9 +211,9 @@ public class TechFreqsVisualIndicatorMod : IModApi
 	{
 		if (player == null || ((Entity)player).world?.Entities?.dict == null || NavObjectManager.Instance == null)
 			return;
-		foreach (NavObject value2 in entityNavObjects.Values)
-			NavObjectManager.Instance.UnRegisterNavObject(value2);
-		entityNavObjects.Clear();
+
+		var activeKeys = new HashSet<string>();
+
 		foreach (KeyValuePair<int, Entity> item in ((Entity)player).world.Entities.dict)
 		{
 			Entity value = item.Value;
@@ -225,6 +226,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 			if (containerLabel != null)
 			{
 				string key = $"container_{value.entityId}";
+				activeKeys.Add(key);
 				CreateOrUpdateContainerNavObject(player, key, value, containerLabel);
 				continue;
 			}
@@ -233,17 +235,25 @@ public class TechFreqsVisualIndicatorMod : IModApi
 			if (alive != null && ((Entity)alive).IsAlive())
 			{
 				string key = $"entity_{value.entityId}";
+				activeKeys.Add(key);
 				CreateOrUpdateNavObject(player, key, alive);
 			}
+		}
+
+		// Remove nav objects for entities that left range or despawned
+		var keysToRemove = new List<string>();
+		foreach (string key in entityNavObjects.Keys)
+			if (!activeKeys.Contains(key)) keysToRemove.Add(key);
+		foreach (string key in keysToRemove)
+		{
+			NavObjectManager.Instance.UnRegisterNavObject(entityNavObjects[key]);
+			entityNavObjects.Remove(key);
 		}
 	}
 
 	private static void CreateOrUpdateNavObject(EntityPlayerLocal player, string key, EntityAlive entity)
 	{
 		float num = Vector3.Distance(((Entity)player).position, ((Entity)entity).position);
-		bool showCompassIcons = ShowCompassIcons;
-		bool showOnScreenIcons = ShowOnScreenIcons;
-		bool showMapIcons = ShowMapIcons;
 		bool showLabels = ShowLabels;
 		bool showDistance = ShowDistance;
 		string name = "";
@@ -253,26 +263,34 @@ public class TechFreqsVisualIndicatorMod : IModApi
 			if (!string.IsNullOrEmpty(label))
 				name = showDistance ? $"{label} {num:F0}m" : label;
 		}
-		bool flag = showOnScreenIcons || showLabels;
-		NavObject val = NavObjectManager.Instance.RegisterNavObject("quest", (Entity)(object)entity, GetSprite(entity), !showCompassIcons);
-		if (val != null)
+
+		if (entityNavObjects.TryGetValue(key, out NavObject val) && val != null)
 		{
-			entityNavObjects[key] = val;
 			val.name = name;
-			val.usingLocalizationId = false;
-			val.hiddenOnCompass = !showCompassIcons;
-			val.hiddenOnMap = !showMapIcons;
-			val.UseOverrideColor = true;
-			val.OverrideColor = ((entity is EntityZombie) ? new Color(1f, 0f, 0f, 0.8f) : (IsHostile(entity) ? new Color(1f, 0.5f, 0f, 0.8f) : new Color(0f, 1f, 0f, 0.8f)));
-			if (val.CurrentScreenSettings is NavObjectScreenSettings screen)
-			{
-				screen.MaxDistance = flag ? DetectionRadius : 0f;
-				screen.MinDistance = 0f;
-				screen.ShowTextType = (showLabels && flag)
-					? NavObjectScreenSettings.ShowTextTypes.Name
-					: NavObjectScreenSettings.ShowTextTypes.None;
-				screen.FontSize = FontSize;
-			}
+			return;
+		}
+
+		bool showCompassIcons = ShowCompassIcons;
+		bool showOnScreenIcons = ShowOnScreenIcons;
+		bool showMapIcons = ShowMapIcons;
+		bool flag = showOnScreenIcons || showLabels;
+		val = NavObjectManager.Instance.RegisterNavObject("quest", (Entity)(object)entity, GetSprite(entity), !showCompassIcons);
+		if (val == null) return;
+		entityNavObjects[key] = val;
+		val.name = name;
+		val.usingLocalizationId = false;
+		val.hiddenOnCompass = !showCompassIcons;
+		val.hiddenOnMap = !showMapIcons;
+		val.UseOverrideColor = true;
+		val.OverrideColor = (entity is EntityZombie) ? new Color(1f, 0f, 0f, 0.8f) : (IsHostile(entity) ? new Color(1f, 0.5f, 0f, 0.8f) : new Color(0f, 1f, 0f, 0.8f));
+		if (val.CurrentScreenSettings is NavObjectScreenSettings screen)
+		{
+			screen.MaxDistance = flag ? DetectionRadius : 0f;
+			screen.MinDistance = 0f;
+			screen.ShowTextType = (showLabels && flag)
+				? NavObjectScreenSettings.ShowTextTypes.Name
+				: NavObjectScreenSettings.ShowTextTypes.None;
+			screen.FontSize = FontSize;
 		}
 	}
 
@@ -411,29 +429,34 @@ public class TechFreqsVisualIndicatorMod : IModApi
 	private static void CreateOrUpdateContainerNavObject(EntityPlayerLocal player, string key, Entity entity, string label)
 	{
 		float dist = Vector3.Distance(((Entity)player).position, entity.position);
-		bool flag = ShowOnScreenIcons || ShowLabels;
 		string name = "";
 		if (ShowLabels)
 			name = ShowDistance ? $"{label} {dist:F0}m" : label;
-		NavObject val = NavObjectManager.Instance.RegisterNavObject("quest", entity, "ui_game_symbol_loot_sack", true);
-		if (val != null)
+
+		if (entityNavObjects.TryGetValue(key, out NavObject val) && val != null)
 		{
-			entityNavObjects[key] = val;
 			val.name = name;
-			val.usingLocalizationId = false;
-			val.hiddenOnCompass = false;
-			val.hiddenOnMap = true;
-			val.UseOverrideColor = true;
-			val.OverrideColor = GetContainerColor(label);
-			if (val.CurrentScreenSettings is NavObjectScreenSettings screen)
-			{
-				screen.MaxDistance = flag ? DetectionRadius : 0f;
-				screen.MinDistance = 0f;
-				screen.ShowTextType = (ShowLabels && flag)
-					? NavObjectScreenSettings.ShowTextTypes.Name
-					: NavObjectScreenSettings.ShowTextTypes.None;
-				screen.FontSize = FontSize;
-			}
+			return;
+		}
+
+		bool flag = ShowOnScreenIcons || ShowLabels;
+		val = NavObjectManager.Instance.RegisterNavObject("quest", entity, "ui_game_symbol_loot_sack", false);
+		if (val == null) return;
+		entityNavObjects[key] = val;
+		val.name = name;
+		val.usingLocalizationId = false;
+		val.hiddenOnCompass = false;
+		val.hiddenOnMap = true;
+		val.UseOverrideColor = true;
+		val.OverrideColor = GetContainerColor(label);
+		if (val.CurrentScreenSettings is NavObjectScreenSettings screen)
+		{
+			screen.MaxDistance = flag ? DetectionRadius : 0f;
+			screen.MinDistance = 0f;
+			screen.ShowTextType = (ShowLabels && flag)
+				? NavObjectScreenSettings.ShowTextTypes.Name
+				: NavObjectScreenSettings.ShowTextTypes.None;
+			screen.FontSize = FontSize;
 		}
 	}
 
