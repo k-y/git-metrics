@@ -376,14 +376,14 @@ public class TechFreqsVisualIndicatorMod : IModApi
 			if (cn.Contains("coyote"))                               return "ui_game_symbol_tracking_wolf";
 			if (cn.Contains("dog"))                                  return "ui_game_symbol_tracking_wolf";
 			if (cn.Contains("snake"))                                return "ui_game_symbol_tracking_snake";
-			if (cn.Contains("vulture"))                              return "ui_game_symbol_bat";
+			if (cn.Contains("vulture"))                              return "ui_game_symbol_tracking_wolf";
 			if (cn.Contains("stag"))                                 return "ui_game_symbol_tracking_deer";
 			if (cn.Contains("doe") || cn.Contains("deer"))           return "ui_game_symbol_tracking_deer";
 			if (cn.Contains("rabbit"))                               return "ui_game_symbol_tracking_rabbit";
 			if (cn.Contains("chicken"))                              return "ui_game_symbol_tracking_chicken";
 			return "ui_game_symbol_animal_tracker";
 		}
-		return "ui_game_symbol_zombie";
+		return "ui_game_symbol_tracking_zombie";
 	}
 
 	private static bool IsHostile(EntityAlive e)
