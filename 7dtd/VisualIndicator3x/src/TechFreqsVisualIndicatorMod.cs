@@ -17,7 +17,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 
 		public float? DetectionRadius { get; set; } = 50f;
 
-		public float? UpdateInterval { get; set; } = 3f;
+		public float? UpdateInterval { get; set; } = 1f;
 
 		public bool? DebugLogging { get; set; } = false;
 
@@ -52,7 +52,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 
 	public static KeyCode ToggleKey { get; private set; } = (KeyCode)59;
 
-	public static float UpdateInterval { get; private set; } = 3f;
+	public static float UpdateInterval { get; private set; } = 1f;
 
 	public static float StartDelay { get; private set; } = 5f;
 
