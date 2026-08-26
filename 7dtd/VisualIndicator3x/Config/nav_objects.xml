@@ -1,0 +1,587 @@
+<configs>
+  <append xpath="/nav_object_classes">
+
+    <!-- ===== ZOMBIE TYPES ===== -->
+
+    <nav_object_class name="TFVIzombie">
+      <map_settings>
+        <property name="sprite_name" value="ui_game_symbol_zombie" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,0,0,255" />
+        <property name="has_pulse" value="true" />
+      </map_settings>
+      <compass_settings>
+        <property name="sprite_name" value="ui_game_symbol_zombie" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="max_scale_distance" value="32" />
+        <property name="color" value="255,0,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="icon_clamped" value="false" />
+      </compass_settings>
+      <onscreen_settings>
+        <property name="sprite_name" value="ui_game_symbol_zombie" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,0,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="use_head_offset" value="true" />
+        <property name="offset" value="0,2,0" />
+        <property name="sprite_size" value="36" />
+        <property name="sprite_fill_type" value="Health" />
+        <property name="sprite_fill_name" value="ui_game_symbol_twitch_overhead_hp_ring" />
+        <property name="sprite_fill_color" value="90,0,0" />
+      </onscreen_settings>
+    </nav_object_class>
+
+    <nav_object_class name="TFVIferal">
+      <map_settings>
+        <property name="sprite_name" value="ui_game_symbol_zombie" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,50,0,255" />
+        <property name="has_pulse" value="true" />
+      </map_settings>
+      <compass_settings>
+        <property name="sprite_name" value="ui_game_symbol_zombie" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="max_scale_distance" value="32" />
+        <property name="color" value="255,50,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="icon_clamped" value="false" />
+      </compass_settings>
+      <onscreen_settings>
+        <property name="sprite_name" value="ui_game_symbol_zombie" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,50,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="use_head_offset" value="true" />
+        <property name="offset" value="0,2,0" />
+        <property name="sprite_size" value="36" />
+        <property name="sprite_fill_type" value="Health" />
+        <property name="sprite_fill_name" value="ui_game_symbol_twitch_overhead_hp_ring" />
+        <property name="sprite_fill_color" value="90,0,0" />
+      </onscreen_settings>
+    </nav_object_class>
+
+    <nav_object_class name="TFVIradiated">
+      <map_settings>
+        <property name="sprite_name" value="ui_game_symbol_zombie" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="0,220,0,255" />
+        <property name="has_pulse" value="true" />
+      </map_settings>
+      <compass_settings>
+        <property name="sprite_name" value="ui_game_symbol_zombie" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="max_scale_distance" value="32" />
+        <property name="color" value="0,220,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="icon_clamped" value="false" />
+      </compass_settings>
+      <onscreen_settings>
+        <property name="sprite_name" value="ui_game_symbol_zombie" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="0,220,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="use_head_offset" value="true" />
+        <property name="offset" value="0,2,0" />
+        <property name="sprite_size" value="36" />
+        <property name="sprite_fill_type" value="Health" />
+        <property name="sprite_fill_name" value="ui_game_symbol_twitch_overhead_hp_ring" />
+        <property name="sprite_fill_color" value="0,90,0" />
+      </onscreen_settings>
+    </nav_object_class>
+
+    <nav_object_class name="TFVIelite">
+      <map_settings>
+        <property name="sprite_name" value="ui_game_symbol_zombie" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,165,0,255" />
+        <property name="has_pulse" value="true" />
+      </map_settings>
+      <compass_settings>
+        <property name="sprite_name" value="ui_game_symbol_zombie" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="max_scale_distance" value="32" />
+        <property name="color" value="255,165,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="icon_clamped" value="false" />
+      </compass_settings>
+      <onscreen_settings>
+        <property name="sprite_name" value="ui_game_symbol_zombie" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,165,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="use_head_offset" value="true" />
+        <property name="offset" value="0,2,0" />
+        <property name="sprite_size" value="36" />
+        <property name="sprite_fill_type" value="Health" />
+        <property name="sprite_fill_name" value="ui_game_symbol_twitch_overhead_hp_ring" />
+        <property name="sprite_fill_color" value="90,40,0" />
+      </onscreen_settings>
+    </nav_object_class>
+
+    <nav_object_class name="TFVIminiboss">
+      <map_settings>
+        <property name="sprite_name" value="ui_game_symbol_twitch_minion_overhead" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,255,0,255" />
+        <property name="has_pulse" value="true" />
+      </map_settings>
+      <compass_settings>
+        <property name="sprite_name" value="ui_game_symbol_twitch_minion_overhead" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="max_scale_distance" value="32" />
+        <property name="color" value="255,255,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="icon_clamped" value="true" />
+      </compass_settings>
+      <onscreen_settings>
+        <property name="sprite_name" value="ui_game_symbol_twitch_minion_overhead" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,255,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="use_head_offset" value="true" />
+        <property name="offset" value="0,2,0" />
+        <property name="sprite_size" value="48" />
+        <property name="sprite_fill_type" value="Health" />
+        <property name="sprite_fill_name" value="ui_game_symbol_twitch_overhead_hp_ring" />
+        <property name="sprite_fill_color" value="90,0,0" />
+      </onscreen_settings>
+    </nav_object_class>
+
+    <nav_object_class name="TFVIboss">
+      <map_settings>
+        <property name="sprite_name" value="ui_game_symbol_twitch_boss_overhead" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,0,255,255" />
+        <property name="has_pulse" value="true" />
+      </map_settings>
+      <compass_settings>
+        <property name="sprite_name" value="ui_game_symbol_twitch_boss_overhead" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="max_scale_distance" value="32" />
+        <property name="color" value="255,0,255,255" />
+        <property name="has_pulse" value="true" />
+        <property name="icon_clamped" value="true" />
+      </compass_settings>
+      <onscreen_settings>
+        <property name="sprite_name" value="ui_game_symbol_twitch_boss_overhead" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,0,255,255" />
+        <property name="has_pulse" value="true" />
+        <property name="use_head_offset" value="true" />
+        <property name="offset" value="0,2,0" />
+        <property name="sprite_size" value="64" />
+        <property name="sprite_fill_type" value="Health" />
+        <property name="sprite_fill_name" value="ui_game_symbol_twitch_overhead_hp_ring" />
+        <property name="sprite_fill_color" value="90,0,0" />
+      </onscreen_settings>
+    </nav_object_class>
+
+    <!-- ===== ANIMAL TYPES ===== -->
+
+    <nav_object_class name="TFVIanimal_bear">
+      <map_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_bear" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,128,0,255" />
+        <property name="has_pulse" value="true" />
+      </map_settings>
+      <compass_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_bear" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="max_scale_distance" value="32" />
+        <property name="color" value="255,128,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="icon_clamped" value="false" />
+      </compass_settings>
+      <onscreen_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_bear" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,128,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="use_head_offset" value="true" />
+        <property name="offset" value="0,2,0" />
+        <property name="sprite_size" value="36" />
+        <property name="sprite_fill_type" value="Health" />
+        <property name="sprite_fill_name" value="ui_game_symbol_twitch_overhead_hp_ring" />
+        <property name="sprite_fill_color" value="90,40,0" />
+      </onscreen_settings>
+    </nav_object_class>
+
+    <nav_object_class name="TFVIanimal_direwolf">
+      <map_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_direwolf" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,128,0,255" />
+        <property name="has_pulse" value="true" />
+      </map_settings>
+      <compass_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_direwolf" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="max_scale_distance" value="32" />
+        <property name="color" value="255,128,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="icon_clamped" value="false" />
+      </compass_settings>
+      <onscreen_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_direwolf" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,128,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="use_head_offset" value="true" />
+        <property name="offset" value="0,2,0" />
+        <property name="sprite_size" value="36" />
+        <property name="sprite_fill_type" value="Health" />
+        <property name="sprite_fill_name" value="ui_game_symbol_twitch_overhead_hp_ring" />
+        <property name="sprite_fill_color" value="90,40,0" />
+      </onscreen_settings>
+    </nav_object_class>
+
+    <nav_object_class name="TFVIanimal_wolf">
+      <map_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_wolf" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,128,0,255" />
+        <property name="has_pulse" value="true" />
+      </map_settings>
+      <compass_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_wolf" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="max_scale_distance" value="32" />
+        <property name="color" value="255,128,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="icon_clamped" value="false" />
+      </compass_settings>
+      <onscreen_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_wolf" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,128,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="use_head_offset" value="true" />
+        <property name="offset" value="0,2,0" />
+        <property name="sprite_size" value="36" />
+        <property name="sprite_fill_type" value="Health" />
+        <property name="sprite_fill_name" value="ui_game_symbol_twitch_overhead_hp_ring" />
+        <property name="sprite_fill_color" value="90,40,0" />
+      </onscreen_settings>
+    </nav_object_class>
+
+    <nav_object_class name="TFVIanimal_mountainlion">
+      <map_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_mountain_lion" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,128,0,255" />
+        <property name="has_pulse" value="true" />
+      </map_settings>
+      <compass_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_mountain_lion" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="max_scale_distance" value="32" />
+        <property name="color" value="255,128,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="icon_clamped" value="false" />
+      </compass_settings>
+      <onscreen_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_mountain_lion" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,128,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="use_head_offset" value="true" />
+        <property name="offset" value="0,2,0" />
+        <property name="sprite_size" value="36" />
+        <property name="sprite_fill_type" value="Health" />
+        <property name="sprite_fill_name" value="ui_game_symbol_twitch_overhead_hp_ring" />
+        <property name="sprite_fill_color" value="90,40,0" />
+      </onscreen_settings>
+    </nav_object_class>
+
+    <nav_object_class name="TFVIanimal_vulture">
+      <map_settings>
+        <property name="sprite_name" value="ui_game_symbol_bat" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,128,0,255" />
+        <property name="has_pulse" value="true" />
+      </map_settings>
+      <compass_settings>
+        <property name="sprite_name" value="ui_game_symbol_bat" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="max_scale_distance" value="32" />
+        <property name="color" value="255,128,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="icon_clamped" value="false" />
+      </compass_settings>
+      <onscreen_settings>
+        <property name="sprite_name" value="ui_game_symbol_bat" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,128,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="use_head_offset" value="true" />
+        <property name="offset" value="0,2,0" />
+        <property name="sprite_size" value="36" />
+        <property name="sprite_fill_type" value="Health" />
+        <property name="sprite_fill_name" value="ui_game_symbol_twitch_overhead_hp_ring" />
+        <property name="sprite_fill_color" value="90,40,0" />
+      </onscreen_settings>
+    </nav_object_class>
+
+    <nav_object_class name="TFVIanimal_dog">
+      <map_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_wolf" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,128,0,255" />
+        <property name="has_pulse" value="true" />
+      </map_settings>
+      <compass_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_wolf" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="max_scale_distance" value="32" />
+        <property name="color" value="255,128,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="icon_clamped" value="false" />
+      </compass_settings>
+      <onscreen_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_wolf" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,128,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="use_head_offset" value="true" />
+        <property name="offset" value="0,2,0" />
+        <property name="sprite_size" value="36" />
+        <property name="sprite_fill_type" value="Health" />
+        <property name="sprite_fill_name" value="ui_game_symbol_twitch_overhead_hp_ring" />
+        <property name="sprite_fill_color" value="90,40,0" />
+      </onscreen_settings>
+    </nav_object_class>
+
+    <nav_object_class name="TFVIanimal_coyote">
+      <map_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_coyote" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,128,0,255" />
+        <property name="has_pulse" value="true" />
+      </map_settings>
+      <compass_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_coyote" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="max_scale_distance" value="32" />
+        <property name="color" value="255,128,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="icon_clamped" value="false" />
+      </compass_settings>
+      <onscreen_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_coyote" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,128,0,255" />
+        <property name="has_pulse" value="true" />
+        <property name="use_head_offset" value="true" />
+        <property name="offset" value="0,2,0" />
+        <property name="sprite_size" value="36" />
+        <property name="sprite_fill_type" value="Health" />
+        <property name="sprite_fill_name" value="ui_game_symbol_twitch_overhead_hp_ring" />
+        <property name="sprite_fill_color" value="90,40,0" />
+      </onscreen_settings>
+    </nav_object_class>
+
+    <nav_object_class name="TFVIanimal_boar">
+      <map_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_pig" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="0,200,0,255" />
+        <property name="has_pulse" value="false" />
+      </map_settings>
+      <compass_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_pig" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="max_scale_distance" value="32" />
+        <property name="color" value="0,200,0,255" />
+        <property name="has_pulse" value="false" />
+        <property name="icon_clamped" value="false" />
+      </compass_settings>
+    </nav_object_class>
+
+    <nav_object_class name="TFVIanimal_snake">
+      <map_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_snake" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="0,200,0,255" />
+        <property name="has_pulse" value="false" />
+      </map_settings>
+      <compass_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_snake" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="max_scale_distance" value="32" />
+        <property name="color" value="0,200,0,255" />
+        <property name="has_pulse" value="false" />
+        <property name="icon_clamped" value="false" />
+      </compass_settings>
+    </nav_object_class>
+
+    <nav_object_class name="TFVIanimal_stag">
+      <map_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_stag" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="0,200,0,255" />
+        <property name="has_pulse" value="false" />
+      </map_settings>
+      <compass_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_stag" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="max_scale_distance" value="32" />
+        <property name="color" value="0,200,0,255" />
+        <property name="has_pulse" value="false" />
+        <property name="icon_clamped" value="false" />
+      </compass_settings>
+    </nav_object_class>
+
+    <nav_object_class name="TFVIanimal_deer">
+      <map_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_doe" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="0,200,0,255" />
+        <property name="has_pulse" value="false" />
+      </map_settings>
+      <compass_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_doe" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="max_scale_distance" value="32" />
+        <property name="color" value="0,200,0,255" />
+        <property name="has_pulse" value="false" />
+        <property name="icon_clamped" value="false" />
+      </compass_settings>
+    </nav_object_class>
+
+    <nav_object_class name="TFVIanimal_rabbit">
+      <map_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_rabbit" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="0,200,0,255" />
+        <property name="has_pulse" value="false" />
+      </map_settings>
+      <compass_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_rabbit" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="max_scale_distance" value="32" />
+        <property name="color" value="0,200,0,255" />
+        <property name="has_pulse" value="false" />
+        <property name="icon_clamped" value="false" />
+      </compass_settings>
+    </nav_object_class>
+
+    <nav_object_class name="TFVIanimal_chicken">
+      <map_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_chicken" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="0,200,0,255" />
+        <property name="has_pulse" value="false" />
+      </map_settings>
+      <compass_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_chicken" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="max_scale_distance" value="32" />
+        <property name="color" value="0,200,0,255" />
+        <property name="has_pulse" value="false" />
+        <property name="icon_clamped" value="false" />
+      </compass_settings>
+    </nav_object_class>
+
+    <nav_object_class name="TFVIanimal_timid">
+      <map_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_timid" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="0,200,0,255" />
+        <property name="has_pulse" value="false" />
+      </map_settings>
+      <compass_settings>
+        <property name="sprite_name" value="ui_game_symbol_tracking_timid" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="max_scale_distance" value="32" />
+        <property name="color" value="0,200,0,255" />
+        <property name="has_pulse" value="false" />
+        <property name="icon_clamped" value="false" />
+      </compass_settings>
+    </nav_object_class>
+
+    <!-- ===== CONTAINER ===== -->
+
+    <nav_object_class name="TFVIcontainer">
+      <map_settings>
+        <property name="sprite_name" value="ui_game_symbol_loot_sack" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,255,0,255" />
+        <property name="has_pulse" value="false" />
+      </map_settings>
+      <compass_settings>
+        <property name="sprite_name" value="ui_game_symbol_loot_sack" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="max_scale_distance" value="32" />
+        <property name="color" value="255,255,0,255" />
+        <property name="has_pulse" value="false" />
+        <property name="icon_clamped" value="false" />
+      </compass_settings>
+      <onscreen_settings>
+        <property name="sprite_name" value="ui_game_symbol_loot_sack" />
+        <property name="min_distance" value="0" />
+        <property name="max_distance" value="100" />
+        <property name="color" value="255,255,0,255" />
+        <property name="has_pulse" value="false" />
+        <property name="offset" value="0,0,0" />
+      </onscreen_settings>
+    </nav_object_class>
+
+  </append>
+</configs>

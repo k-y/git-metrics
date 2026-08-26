@@ -46,9 +46,6 @@ public class TechFreqsVisualIndicatorMod : IModApi
 
 	private static readonly Dictionary<string, NavObject> entityNavObjects = new Dictionary<string, NavObject>();
 
-	private static int _diagFound;
-	private static int _diagNullReg;
-
 	public static bool IndicatorsEnabled { get; internal set; } = true;
 
 	public static float DetectionRadius { get; private set; } = 50f;
@@ -126,9 +123,8 @@ public class TechFreqsVisualIndicatorMod : IModApi
 				if (player != null && !((Entity)player).isEntityRemote && ((Entity)player).IsSpawned())
 				{
 					IndicatorsEnabled = !IndicatorsEnabled;
-					string diagMsg = $"found={_diagFound} nullReg={_diagNullReg} tracked={entityNavObjects.Count}";
 					GameManager.ShowTooltip(player, MOD_PREFIX +
-						(IndicatorsEnabled ? "ENABLED " : "DISABLED ") + diagMsg, false, false, 0f);
+						(IndicatorsEnabled ? "ENABLED" : "DISABLED"), false, false, 0f);
 					if (!IndicatorsEnabled) DisableDetector();
 				}
 			}
@@ -238,7 +234,6 @@ public class TechFreqsVisualIndicatorMod : IModApi
 			EntityAlive alive = value as EntityAlive;
 			if (alive != null && ((Entity)alive).IsAlive())
 			{
-				_diagFound++;
 				string key = $"entity_{value.entityId}";
 				activeKeys.Add(key);
 				CreateOrUpdateNavObject(player, key, alive);
@@ -279,9 +274,10 @@ public class TechFreqsVisualIndicatorMod : IModApi
 		bool showOnScreenIcons = ShowOnScreenIcons;
 		bool showMapIcons = ShowMapIcons;
 		bool flag = showOnScreenIcons || showLabels;
-		string navClass = "quest"; // DIAG: bypass TFVI classes
-		val = NavObjectManager.Instance.RegisterNavObject(navClass, (Entity)(object)entity, GetSprite(entity), !showCompassIcons);
-		if (val == null) { _diagNullReg++; return; }
+		val = NavObjectManager.Instance.RegisterNavObject(GetNavObjectClass(entity), (Entity)(object)entity, GetSprite(entity), !showCompassIcons);
+		if (val == null)
+			val = NavObjectManager.Instance.RegisterNavObject("quest", (Entity)(object)entity, GetSprite(entity), !showCompassIcons);
+		if (val == null) return;
 		entityNavObjects[key] = val;
 		val.name = name;
 		val.usingLocalizationId = false;
@@ -369,24 +365,20 @@ public class TechFreqsVisualIndicatorMod : IModApi
 	private static string GetSprite(EntityAlive e)
 	{
 		string cn = ((Entity)e).EntityClass.entityClassName.ToLowerInvariant();
-		if (cn.Contains("boss") && cn.Contains("mini")) return "ui_game_symbol_twitch_minion_overhead";
-		if (cn.Contains("boss"))                         return "ui_game_symbol_twitch_boss_overhead";
 		if (e is EntityAnimal || cn.Contains("snake") || cn.Contains("vulture"))
 		{
 			if (cn.Contains("bear"))                                 return "ui_game_symbol_tracking_bear";
-			if (cn.Contains("direwolf"))                             return "ui_game_symbol_tracking_wolf";
+			if (cn.Contains("direwolf"))                             return "ui_game_symbol_tracking_direwolf";
 			if (cn.Contains("wolf"))                                 return "ui_game_symbol_tracking_wolf";
-			if (cn.Contains("mountainlion") || cn.Contains("lion")) return "ui_game_symbol_tracking_mountain_lion";
-			if (cn.Contains("boar"))                                 return "ui_game_symbol_tracking_pig";
-			if (cn.Contains("coyote"))                               return "ui_game_symbol_tracking_wolf";
-			if (cn.Contains("dog"))                                  return "ui_game_symbol_tracking_wolf";
+			if (cn.Contains("mountainlion") || cn.Contains("lion")) return "ui_game_symbol_tracking_mountainlion";
+			if (cn.Contains("boar"))                                 return "ui_game_symbol_tracking_boar";
+			if (cn.Contains("coyote"))                               return "ui_game_symbol_tracking_coyote";
 			if (cn.Contains("snake"))                                return "ui_game_symbol_tracking_snake";
-			if (cn.Contains("vulture"))                              return "ui_game_symbol_tracking_wolf";
-			if (cn.Contains("stag"))                                 return "ui_game_symbol_tracking_deer";
-			if (cn.Contains("doe") || cn.Contains("deer"))           return "ui_game_symbol_tracking_deer";
+			if (cn.Contains("stag"))                                 return "ui_game_symbol_tracking_stag";
+			if (cn.Contains("doe"))                                  return "ui_game_symbol_tracking_doe";
 			if (cn.Contains("rabbit"))                               return "ui_game_symbol_tracking_rabbit";
 			if (cn.Contains("chicken"))                              return "ui_game_symbol_tracking_chicken";
-			return "ui_game_symbol_animal_tracker";
+			return "ui_game_symbol_tracking_timid";
 		}
 		return "ui_game_symbol_tracking_zombie";
 	}
@@ -447,7 +439,9 @@ public class TechFreqsVisualIndicatorMod : IModApi
 		}
 
 		bool flag = ShowOnScreenIcons || ShowLabels;
-		val = NavObjectManager.Instance.RegisterNavObject("quest", entity, "ui_game_symbol_loot_sack", false); // DIAG
+		val = NavObjectManager.Instance.RegisterNavObject("TFVIcontainer", entity, "ui_game_symbol_loot_sack", false);
+		if (val == null)
+			val = NavObjectManager.Instance.RegisterNavObject("quest", entity, "ui_game_symbol_loot_sack", false);
 		if (val == null) return;
 		entityNavObjects[key] = val;
 		val.name = name;
