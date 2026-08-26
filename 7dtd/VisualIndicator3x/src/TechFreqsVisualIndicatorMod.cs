@@ -46,6 +46,9 @@ public class TechFreqsVisualIndicatorMod : IModApi
 
 	private static readonly Dictionary<string, NavObject> entityNavObjects = new Dictionary<string, NavObject>();
 
+	private static int _diagFound;
+	private static int _diagNullReg;
+
 	public static bool IndicatorsEnabled { get; internal set; } = true;
 
 	public static float DetectionRadius { get; private set; } = 50f;
@@ -123,8 +126,9 @@ public class TechFreqsVisualIndicatorMod : IModApi
 				if (player != null && !((Entity)player).isEntityRemote && ((Entity)player).IsSpawned())
 				{
 					IndicatorsEnabled = !IndicatorsEnabled;
+					string diagMsg = $"found={_diagFound} nullReg={_diagNullReg} tracked={entityNavObjects.Count}";
 					GameManager.ShowTooltip(player, MOD_PREFIX +
-						(IndicatorsEnabled ? "ENABLED" : "DISABLED"), false, false, 0f);
+						(IndicatorsEnabled ? "ENABLED " : "DISABLED ") + diagMsg, false, false, 0f);
 					if (!IndicatorsEnabled) DisableDetector();
 				}
 			}
@@ -234,6 +238,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 			EntityAlive alive = value as EntityAlive;
 			if (alive != null && ((Entity)alive).IsAlive())
 			{
+				_diagFound++;
 				string key = $"entity_{value.entityId}";
 				activeKeys.Add(key);
 				CreateOrUpdateNavObject(player, key, alive);
@@ -276,7 +281,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 		bool flag = showOnScreenIcons || showLabels;
 		string navClass = "quest"; // DIAG: bypass TFVI classes
 		val = NavObjectManager.Instance.RegisterNavObject(navClass, (Entity)(object)entity, GetSprite(entity), !showCompassIcons);
-		if (val == null) return;
+		if (val == null) { _diagNullReg++; return; }
 		entityNavObjects[key] = val;
 		val.name = name;
 		val.usingLocalizationId = false;
