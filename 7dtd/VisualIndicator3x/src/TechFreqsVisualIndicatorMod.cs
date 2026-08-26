@@ -105,7 +105,8 @@ public class TechFreqsVisualIndicatorMod : IModApi
 				EntityPlayerLocal val = (EntityPlayerLocal)obj;
 				if (val != null)
 				{
-					UpdateEntityDetector(val);
+					try { UpdateEntityDetector(val); }
+					catch (Exception ex) { Log("UpdateEntityDetector error: " + ex.Message); }
 				}
 			}
 			yield return (object)new WaitForSeconds(UpdateInterval);
@@ -274,9 +275,13 @@ public class TechFreqsVisualIndicatorMod : IModApi
 		bool showOnScreenIcons = ShowOnScreenIcons;
 		bool showMapIcons = ShowMapIcons;
 		bool flag = showOnScreenIcons || showLabels;
-		val = NavObjectManager.Instance.RegisterNavObject(GetNavObjectClass(entity), (Entity)(object)entity, GetSprite(entity), !showCompassIcons);
-		if (val == null)
-			val = NavObjectManager.Instance.RegisterNavObject("quest", (Entity)(object)entity, GetSprite(entity), !showCompassIcons);
+		try
+		{
+			val = NavObjectManager.Instance.RegisterNavObject(GetNavObjectClass(entity), (Entity)(object)entity, GetSprite(entity), !showCompassIcons);
+			if (val == null)
+				val = NavObjectManager.Instance.RegisterNavObject("quest", (Entity)(object)entity, GetSprite(entity), !showCompassIcons);
+		}
+		catch (Exception ex) { Log("RegisterNavObject entity error: " + ex.Message); val = null; }
 		if (val == null) return;
 		entityNavObjects[key] = val;
 		val.name = name;
@@ -298,7 +303,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 
 	private static string GetNavObjectClass(EntityAlive e)
 	{
-		string cn = ((Entity)e).EntityClass.entityClassName.ToLowerInvariant();
+		string cn = ((Entity)e).EntityClass?.entityClassName?.ToLowerInvariant() ?? "";
 		if (cn.Contains("boss") && cn.Contains("mini"))              return "TFVIminiboss";
 		if (cn.Contains("boss"))                                     return "TFVIboss";
 		if (cn.Contains("radiated"))                                 return "TFVIradiated";
@@ -439,9 +444,13 @@ public class TechFreqsVisualIndicatorMod : IModApi
 		}
 
 		bool flag = ShowOnScreenIcons || ShowLabels;
-		val = NavObjectManager.Instance.RegisterNavObject("TFVIcontainer", entity, "ui_game_symbol_loot_sack", false);
-		if (val == null)
-			val = NavObjectManager.Instance.RegisterNavObject("quest", entity, "ui_game_symbol_loot_sack", false);
+		try
+		{
+			val = NavObjectManager.Instance.RegisterNavObject("TFVIcontainer", entity, "ui_game_symbol_loot_sack", false);
+			if (val == null)
+				val = NavObjectManager.Instance.RegisterNavObject("quest", entity, "ui_game_symbol_loot_sack", false);
+		}
+		catch (Exception ex) { Log("RegisterNavObject container error: " + ex.Message); val = null; }
 		if (val == null) return;
 		entityNavObjects[key] = val;
 		val.name = name;
