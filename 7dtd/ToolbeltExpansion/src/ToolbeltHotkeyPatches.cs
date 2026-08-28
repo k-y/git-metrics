@@ -7,6 +7,13 @@ namespace ToolbeltExpansion
 {
     public static class ToolbeltHotkeyPatches
     {
+        // Default keys for second-row slots: Alt+1 through Alt+0.
+        private static readonly Key[] DefaultPrimaryKeys =
+        {
+            Key.Key1, Key.Key2, Key.Key3, Key.Key4, Key.Key5,
+            Key.Key6, Key.Key7, Key.Key8, Key.Key9, Key.Key0,
+        };
+
         private static readonly MethodInfo CreatePlayerActionMethod =
             AccessTools.Method(typeof(PlayerActionSet), "CreatePlayerAction", new[] { typeof(string) });
 
@@ -33,7 +40,7 @@ namespace ToolbeltExpansion
             if (added > 0)
             {
                 Log.Out("[ToolbeltExpansion] Added " + added + " expanded toolbelt hotkey action(s) for slots " +
-                        "11-" + ToolbeltSlotPatches.ExpandedSlots + ". Bind them via Options > Controls > Toolbelt.");
+                        "11-" + ToolbeltSlotPatches.ExpandedSlots + " with default Alt+1..0 bindings.");
             }
         }
 
@@ -59,6 +66,13 @@ namespace ToolbeltExpansion
                 nameKey,
                 "inpActInventorySlot" + slotNumber + "Desc",
                 PlayerActionData.GroupToolbelt);
+
+            int idx = slotNumber - ToolbeltSlotPatches.VanillaPlaySlots - 1;
+            if (idx >= 0 && idx < DefaultPrimaryKeys.Length)
+            {
+                action.AddDefaultBinding(new KeyBindingSource(Key.LeftAlt, DefaultPrimaryKeys[idx]));
+            }
+
             actions.InventoryActions.Add(action);
         }
 
