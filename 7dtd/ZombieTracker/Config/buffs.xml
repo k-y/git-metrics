@@ -1,0 +1,3 @@
+<configs>
+	<!-- No buffs required. Tracking is always-on via nav_object_class (no requirement_type="Tracking"). -->
+</configs>

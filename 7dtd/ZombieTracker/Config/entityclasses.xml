@@ -1,0 +1,21 @@
+<configs>
+	<!-- Set NavObject on the zombie template so all inheriting classes default to tier 1 (normal/red) -->
+	<set xpath="/entity_classes/entity_class[@name='zombieTemplateMale']/property[@name='NavObject']/@value">tfztracking1</set>
+	<set xpath="/entity_classes/entity_class[@name='zombieTemplateMale']/property[@name='TrackerIcon']/@value">ui_game_symbol_zombie</set>
+
+	<!-- Override NavObject for higher-tier zombies.
+	     <append> adds the property; last value wins in the game's property lookup,
+	     so this overrides whatever was inherited from the template. -->
+	<append xpath="/entity_classes/entity_class[contains(@name, 'Feral') and not(contains(@name, 'Radiated')) and not(contains(@name, 'Charged')) and not(contains(@name, 'Infernal'))]">
+		<property name="NavObject" value="tfztracking2"/>
+	</append>
+	<append xpath="/entity_classes/entity_class[contains(@name, 'Radiated') and not(contains(@name, 'Charged')) and not(contains(@name, 'Infernal'))]">
+		<property name="NavObject" value="tfztracking3"/>
+	</append>
+	<append xpath="/entity_classes/entity_class[contains(@name, 'Charged') and not(contains(@name, 'Infernal'))]">
+		<property name="NavObject" value="tfztracking4"/>
+	</append>
+	<append xpath="/entity_classes/entity_class[contains(@name, 'Infernal')]">
+		<property name="NavObject" value="tfztracking5"/>
+	</append>
+</configs>

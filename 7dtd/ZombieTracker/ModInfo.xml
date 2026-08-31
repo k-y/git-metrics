@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ModInfo>
+  <Name value="ZombieTracker" />
+  <DisplayName value="Zombie Tracker" />
+  <Version value="1.0" />
+  <Description value="Always-on zombie radar. Normal zombies show red, Feral beige, Radiated green, Charged blue, Infernal orange on map/compass/screen." />
+  <Author value="TechFreq" />
+  <Website value="" />
+  <APIVersion value="0" />
+</ModInfo>

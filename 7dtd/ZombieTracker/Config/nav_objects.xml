@@ -1,0 +1,134 @@
+<configs>
+	<insertAfter xpath="/nav_object_classes/nav_object_class[@name='animaltracking_timid']">
+		<!-- Normal Zombie (red skull) — always visible, no Tracking requirement -->
+		<nav_object_class name="tfztracking1">
+			<map_settings>
+				<property name="sprite_name" value="ui_game_symbol_zombie"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_distance" value="-1"/>
+				<property name="color" value="255,0,0,255"/>
+				<property name="has_pulse" value="true"/>
+			</map_settings>
+			<compass_settings>
+				<property name="sprite_name" value="ui_game_symbol_zombie"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_scale_distance" value="1024"/>
+				<property name="color" value="255,0,0,255"/>
+				<property name="has_pulse" value="true"/>
+				<property name="icon_clamped" value="false"/>
+			</compass_settings>
+			<onscreen_settings>
+				<property name="sprite_name" value="ui_game_symbol_zombie"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_distance" value="25"/>
+				<property name="color" value="255,0,0,255"/>
+				<property name="has_pulse" value="false"/>
+				<property name="offset" value="0,1.2,0"/>
+			</onscreen_settings>
+		</nav_object_class>
+		<!-- Feral Zombie (beige skull) -->
+		<nav_object_class name="tfztracking2">
+			<map_settings>
+				<property name="sprite_name" value="ui_game_symbol_zombie"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_distance" value="-1"/>
+				<property name="color" value="250,255,163,255"/>
+				<property name="has_pulse" value="true"/>
+			</map_settings>
+			<compass_settings>
+				<property name="sprite_name" value="ui_game_symbol_zombie"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_scale_distance" value="1024"/>
+				<property name="color" value="250,255,163,255"/>
+				<property name="has_pulse" value="true"/>
+				<property name="icon_clamped" value="false"/>
+			</compass_settings>
+			<onscreen_settings>
+				<property name="sprite_name" value="ui_game_symbol_zombie"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_distance" value="48"/>
+				<property name="color" value="250,255,163,255"/>
+				<property name="has_pulse" value="false"/>
+				<property name="offset" value="0,1.2,0"/>
+			</onscreen_settings>
+		</nav_object_class>
+		<!-- Radiated Zombie (green skull) -->
+		<nav_object_class name="tfztracking3">
+			<map_settings>
+				<property name="sprite_name" value="ui_game_symbol_zombie"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_distance" value="-1"/>
+				<property name="color" value="64,233,5,255"/>
+				<property name="has_pulse" value="true"/>
+			</map_settings>
+			<compass_settings>
+				<property name="sprite_name" value="ui_game_symbol_zombie"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_scale_distance" value="1024"/>
+				<property name="color" value="64,233,5,255"/>
+				<property name="has_pulse" value="true"/>
+				<property name="icon_clamped" value="false"/>
+			</compass_settings>
+			<onscreen_settings>
+				<property name="sprite_name" value="ui_game_symbol_zombie"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_distance" value="72"/>
+				<property name="color" value="64,233,5,255"/>
+				<property name="has_pulse" value="false"/>
+				<property name="offset" value="0,1.2,0"/>
+			</onscreen_settings>
+		</nav_object_class>
+		<!-- Charged Zombie (blue skull) -->
+		<nav_object_class name="tfztracking4">
+			<map_settings>
+				<property name="sprite_name" value="ui_game_symbol_zombie"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_distance" value="-1"/>
+				<property name="color" value="0,96,233,255"/>
+				<property name="has_pulse" value="true"/>
+			</map_settings>
+			<compass_settings>
+				<property name="sprite_name" value="ui_game_symbol_zombie"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_scale_distance" value="1024"/>
+				<property name="color" value="0,96,233,255"/>
+				<property name="has_pulse" value="true"/>
+				<property name="icon_clamped" value="false"/>
+			</compass_settings>
+			<onscreen_settings>
+				<property name="sprite_name" value="ui_game_symbol_zombie"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_distance" value="96"/>
+				<property name="color" value="0,96,233,255"/>
+				<property name="has_pulse" value="false"/>
+				<property name="offset" value="0,1.2,0"/>
+			</onscreen_settings>
+		</nav_object_class>
+		<!-- Infernal Zombie (orange skull) -->
+		<nav_object_class name="tfztracking5">
+			<map_settings>
+				<property name="sprite_name" value="ui_game_symbol_zombie"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_distance" value="-1"/>
+				<property name="color" value="233,142,0,255"/>
+				<property name="has_pulse" value="true"/>
+			</map_settings>
+			<compass_settings>
+				<property name="sprite_name" value="ui_game_symbol_zombie"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_scale_distance" value="1024"/>
+				<property name="color" value="233,142,0,255"/>
+				<property name="has_pulse" value="true"/>
+				<property name="icon_clamped" value="false"/>
+			</compass_settings>
+			<onscreen_settings>
+				<property name="sprite_name" value="ui_game_symbol_zombie"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_distance" value="120"/>
+				<property name="color" value="233,142,0,255"/>
+				<property name="has_pulse" value="false"/>
+				<property name="offset" value="0,1.2,0"/>
+			</onscreen_settings>
+		</nav_object_class>
+	</insertAfter>
+</configs>
