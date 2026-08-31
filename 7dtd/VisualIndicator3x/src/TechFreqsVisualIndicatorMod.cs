@@ -285,12 +285,16 @@ public class TechFreqsVisualIndicatorMod : IModApi
 			return;
 		}
 
+		// Re-check state — entity may have despawned between the loop guard and here.
+		var mgr = NavObjectManager.Instance;
+		if (mgr == null || entity == null || entity.IsDespawned || entity.EntityClass == null) return;
+
 		bool flag = ShowOnScreenIcons || ShowLabels;
 		try
 		{
-			val = NavObjectManager.Instance.RegisterNavObject("TFVIcontainer", entity, "ui_game_symbol_loot_sack", false);
+			val = mgr.RegisterNavObject("TFVIcontainer", entity, "ui_game_symbol_loot_sack", false);
 			if (val == null)
-				val = NavObjectManager.Instance.RegisterNavObject("quest", entity, "ui_game_symbol_loot_sack", false);
+				val = mgr.RegisterNavObject("quest", entity, "ui_game_symbol_loot_sack", false);
 		}
 		catch (Exception ex) { Log("RegisterNavObject container error: " + ex.Message); val = null; }
 		if (val == null) return;
