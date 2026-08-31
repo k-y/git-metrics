@@ -1,5 +1,5 @@
 <configs>
-	<insertAfter xpath="/nav_object_classes/nav_object_class[@name='animaltracking_timid']">
+	<append xpath="/nav_object_classes">
 		<!-- Normal Zombie (red skull) — always visible, no Tracking requirement -->
 		<nav_object_class name="tfztracking1">
 			<map_settings>
@@ -130,9 +130,9 @@
 				<property name="offset" value="0,1.2,0"/>
 			</onscreen_settings>
 		</nav_object_class>
-	</insertAfter>
+	</append>
 
-	<insertAfter xpath="/nav_object_classes/nav_object_class[@name='tfztracking5']">
+	<append xpath="/nav_object_classes">
 		<!-- Hostile animals (orange) — bear, direwolf, wolf, mountain lion, vulture, zombie dog, coyote -->
 		<nav_object_class name="tfzanimal_hostile">
 			<map_settings>
@@ -159,7 +159,7 @@
 				<property name="offset" value="0,1.5,0"/>
 			</onscreen_settings>
 		</nav_object_class>
-		<!-- Passive/huntable animals (green) — boar, snake, stag, doe, rabbit, chicken, etc. -->
+		<!-- Passive/huntable animals (green) — boar, stag, doe, rabbit, chicken, etc. -->
 		<nav_object_class name="tfzanimal_passive">
 			<map_settings>
 				<property name="sprite_name" value="ui_game_symbol_tracking_stag"/>

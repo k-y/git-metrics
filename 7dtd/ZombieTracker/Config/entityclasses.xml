@@ -1,7 +1,10 @@
 <configs>
-	<!-- Set NavObject on the zombie template so all inheriting classes default to tier 1 (normal/red) -->
-	<set xpath="/entity_classes/entity_class[@name='zombieTemplateMale']/property[@name='NavObject']/@value">tfztracking1</set>
-	<set xpath="/entity_classes/entity_class[@name='zombieTemplateMale']/property[@name='TrackerIcon']/@value">ui_game_symbol_zombie</set>
+	<!-- Set NavObject on the zombie template so all inheriting classes default to tier 1 (normal/red).
+	     Using append so it works whether or not the property already exists on the template. -->
+	<append xpath="/entity_classes/entity_class[@name='zombieTemplateMale']">
+		<property name="NavObject" value="tfztracking1"/>
+		<property name="TrackerIcon" value="ui_game_symbol_zombie"/>
+	</append>
 
 	<!-- Override NavObject for higher-tier zombies.
 	     <append> adds the property; last value wins in the game's property lookup,
@@ -20,7 +23,9 @@
 	</append>
 
 	<!-- Animal tracking: set passive (green) on the animal template as the default for all animals -->
-	<set xpath="/entity_classes/entity_class[@name='animalTemplateMale']/property[@name='NavObject']/@value">tfzanimal_passive</set>
+	<append xpath="/entity_classes/entity_class[@name='animalTemplateMale']">
+		<property name="NavObject" value="tfzanimal_passive"/>
+	</append>
 	<!-- Override to hostile (orange) for dangerous animals -->
 	<append xpath="/entity_classes/entity_class[starts-with(@name, 'animal') and (contains(@name, 'Bear') or contains(@name, 'Direwolf') or contains(@name, 'Wolf') or contains(@name, 'Lion') or contains(@name, 'Vulture') or contains(@name, 'Dog') or contains(@name, 'Coyote') or contains(@name, 'Snake'))]">
 		<property name="NavObject" value="tfzanimal_hostile"/>
