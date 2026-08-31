@@ -18,4 +18,11 @@
 	<append xpath="/entity_classes/entity_class[contains(@name, 'Infernal')]">
 		<property name="NavObject" value="tfztracking5"/>
 	</append>
+
+	<!-- Animal tracking: set passive (green) on the animal template as the default for all animals -->
+	<set xpath="/entity_classes/entity_class[@name='animalTemplateMale']/property[@name='NavObject']/@value">tfzanimal_passive</set>
+	<!-- Override to hostile (orange) for dangerous animals -->
+	<append xpath="/entity_classes/entity_class[starts-with(@name, 'animal') and (contains(@name, 'Bear') or contains(@name, 'Direwolf') or contains(@name, 'Wolf') or contains(@name, 'Lion') or contains(@name, 'Vulture') or contains(@name, 'Dog') or contains(@name, 'Coyote'))]">
+		<property name="NavObject" value="tfzanimal_hostile"/>
+	</append>
 </configs>

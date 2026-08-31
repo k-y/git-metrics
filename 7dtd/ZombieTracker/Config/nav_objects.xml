@@ -131,4 +131,59 @@
 			</onscreen_settings>
 		</nav_object_class>
 	</insertAfter>
+
+	<insertAfter xpath="/nav_object_classes/nav_object_class[@name='tfztracking5']">
+		<!-- Hostile animals (orange) — bear, direwolf, wolf, mountain lion, vulture, zombie dog, coyote -->
+		<nav_object_class name="tfzanimal_hostile">
+			<map_settings>
+				<property name="sprite_name" value="ui_game_symbol_tracking_bear"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_distance" value="-1"/>
+				<property name="color" value="255,128,0,255"/>
+				<property name="has_pulse" value="true"/>
+			</map_settings>
+			<compass_settings>
+				<property name="sprite_name" value="ui_game_symbol_tracking_bear"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_scale_distance" value="1024"/>
+				<property name="color" value="255,128,0,255"/>
+				<property name="has_pulse" value="true"/>
+				<property name="icon_clamped" value="false"/>
+			</compass_settings>
+			<onscreen_settings>
+				<property name="sprite_name" value="ui_game_symbol_tracking_bear"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_distance" value="50"/>
+				<property name="color" value="255,128,0,255"/>
+				<property name="has_pulse" value="false"/>
+				<property name="offset" value="0,1.5,0"/>
+			</onscreen_settings>
+		</nav_object_class>
+		<!-- Passive/huntable animals (green) — boar, snake, stag, doe, rabbit, chicken, etc. -->
+		<nav_object_class name="tfzanimal_passive">
+			<map_settings>
+				<property name="sprite_name" value="ui_game_symbol_tracking_stag"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_distance" value="-1"/>
+				<property name="color" value="0,200,0,255"/>
+				<property name="has_pulse" value="false"/>
+			</map_settings>
+			<compass_settings>
+				<property name="sprite_name" value="ui_game_symbol_tracking_stag"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_scale_distance" value="1024"/>
+				<property name="color" value="0,200,0,255"/>
+				<property name="has_pulse" value="false"/>
+				<property name="icon_clamped" value="false"/>
+			</compass_settings>
+			<onscreen_settings>
+				<property name="sprite_name" value="ui_game_symbol_tracking_stag"/>
+				<property name="min_distance" value="0"/>
+				<property name="max_distance" value="50"/>
+				<property name="color" value="0,200,0,255"/>
+				<property name="has_pulse" value="false"/>
+				<property name="offset" value="0,1.5,0"/>
+			</onscreen_settings>
+		</nav_object_class>
+	</insertAfter>
 </configs>
