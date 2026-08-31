@@ -221,27 +221,15 @@ public class TechFreqsVisualIndicatorMod : IModApi
 			if (value == null || value.entityId == ((Entity)player).entityId || value.IsDespawned) continue;
 			if (Vector3.Distance(((Entity)player).position, value.position) > DetectionRadius) continue;
 
-			// Container check first — EntityLootContainer may extend EntityAlive,
-			// so match by class name before IsAlive() would silently skip it.
 			string containerLabel = GetContainerLabel(value);
 			if (containerLabel != null)
 			{
 				string key = $"container_{value.entityId}";
 				activeKeys.Add(key);
 				CreateOrUpdateContainerNavObject(player, key, value, containerLabel);
-				continue;
-			}
-
-			EntityAlive alive = value as EntityAlive;
-			if (alive != null && ((Entity)alive).IsAlive())
-			{
-				string key = $"entity_{value.entityId}";
-				activeKeys.Add(key);
-				CreateOrUpdateNavObject(player, key, alive);
 			}
 		}
 
-		// Remove nav objects for entities that left range or despawned
 		var keysToRemove = new List<string>();
 		foreach (string key in entityNavObjects.Keys)
 			if (!activeKeys.Contains(key)) keysToRemove.Add(key);
@@ -250,152 +238,6 @@ public class TechFreqsVisualIndicatorMod : IModApi
 			NavObjectManager.Instance.UnRegisterNavObject(entityNavObjects[key]);
 			entityNavObjects.Remove(key);
 		}
-	}
-
-	private static void CreateOrUpdateNavObject(EntityPlayerLocal player, string key, EntityAlive entity)
-	{
-		float num = Vector3.Distance(((Entity)player).position, ((Entity)entity).position);
-		bool showLabels = ShowLabels;
-		bool showDistance = ShowDistance;
-		string name = "";
-		if (showLabels)
-		{
-			string label = BuildShortLabel(entity);
-			if (!string.IsNullOrEmpty(label))
-				name = showDistance ? $"{label} {num:F0}m" : label;
-		}
-
-		if (entityNavObjects.TryGetValue(key, out NavObject val) && val != null)
-		{
-			val.name = name;
-			return;
-		}
-
-		bool showCompassIcons = ShowCompassIcons;
-		bool showOnScreenIcons = ShowOnScreenIcons;
-		bool showMapIcons = ShowMapIcons;
-		bool flag = showOnScreenIcons || showLabels;
-		try
-		{
-			val = NavObjectManager.Instance.RegisterNavObject(GetNavObjectClass(entity), (Entity)(object)entity, GetSprite(entity), !showCompassIcons);
-			if (val == null)
-				val = NavObjectManager.Instance.RegisterNavObject("quest", (Entity)(object)entity, GetSprite(entity), !showCompassIcons);
-		}
-		catch (Exception ex) { Log("RegisterNavObject entity error: " + ex.Message); val = null; }
-		if (val == null) return;
-		entityNavObjects[key] = val;
-		val.name = name;
-		val.usingLocalizationId = false;
-		val.hiddenOnCompass = !showCompassIcons;
-		val.hiddenOnMap = !showMapIcons;
-		val.UseOverrideColor = true;
-		val.OverrideColor = (entity is EntityZombie) ? new Color(1f, 0f, 0f, 0.8f) : (IsHostile(entity) ? new Color(1f, 0.5f, 0f, 0.8f) : new Color(0f, 1f, 0f, 0.8f));
-		if (val.CurrentScreenSettings is NavObjectScreenSettings screen)
-		{
-			screen.MaxDistance = flag ? DetectionRadius : 0f;
-			screen.MinDistance = 0f;
-			screen.ShowTextType = (showLabels && flag)
-				? NavObjectScreenSettings.ShowTextTypes.Name
-				: NavObjectScreenSettings.ShowTextTypes.None;
-			screen.FontSize = FontSize;
-		}
-	}
-
-	private static string GetNavObjectClass(EntityAlive e)
-	{
-		string cn = ((Entity)e).EntityClass?.entityClassName?.ToLowerInvariant() ?? "";
-		if (cn.Contains("boss") && cn.Contains("mini"))              return "TFVIminiboss";
-		if (cn.Contains("boss"))                                     return "TFVIboss";
-		if (cn.Contains("radiated"))                                 return "TFVIradiated";
-		if (cn.Contains("feral"))                                    return "TFVIferal";
-		if (cn.Contains("elite"))                                    return "TFVIelite";
-		if (cn.Contains("zombie") || e is EntityZombie)             return "TFVIzombie";
-		if (cn.Contains("vulture"))                                  return "TFVIanimal_vulture";
-		if (e is EntityAnimal || cn.Contains("snake"))
-		{
-			if (cn.Contains("bear"))                                     return "TFVIanimal_bear";
-			if (cn.Contains("direwolf"))                                 return "TFVIanimal_direwolf";
-			if (cn.Contains("wolf"))                                     return "TFVIanimal_wolf";
-			if (cn.Contains("mountainlion") || cn.Contains("lion"))      return "TFVIanimal_mountainlion";
-			if (cn.Contains("boar"))                                     return "TFVIanimal_boar";
-			if (cn.Contains("snake"))                                    return "TFVIanimal_snake";
-			if (cn.Contains("coyote"))                                   return "TFVIanimal_coyote";
-			if (cn.Contains("dog"))                                      return "TFVIanimal_dog";
-			if (cn.Contains("stag"))                                     return "TFVIanimal_stag";
-			if (cn.Contains("doe") || cn.Contains("deer"))               return "TFVIanimal_deer";
-			if (cn.Contains("rabbit"))                                   return "TFVIanimal_rabbit";
-			if (cn.Contains("chicken"))                                  return "TFVIanimal_chicken";
-			return "TFVIanimal_timid";
-		}
-		return "TFVIzombie";
-	}
-
-	private static string BuildShortLabel(EntityAlive entity)
-	{
-		string cn = ((Entity)entity).EntityClass?.entityClassName?.ToLowerInvariant() ?? "";
-		if (cn.Contains("boss"))    return "BOSS";
-		if (cn.Contains("zombie"))
-		{
-			string orig = ((Entity)entity).EntityClass?.entityClassName ?? "";
-			int idx = orig.IndexOf("zombie", StringComparison.OrdinalIgnoreCase);
-			string suffix = idx >= 0 ? orig.Substring(idx + 6).TrimStart('_') : "";
-			if (suffix.StartsWith("Male", StringComparison.OrdinalIgnoreCase))
-				suffix = suffix.Substring(4).TrimStart('_');
-			else if (suffix.StartsWith("Female", StringComparison.OrdinalIgnoreCase))
-				suffix = suffix.Substring(6).TrimStart('_');
-			return string.IsNullOrEmpty(suffix) ? "Z" : "Z " + suffix;
-		}
-		if (cn.Contains("trader"))  return "Trader";
-		if (cn.Contains("drone"))   return "Drone";
-		if (entity is EntityAnimal || cn.Contains("snake") || cn.Contains("vulture"))
-		{
-			if (cn.Contains("bear"))                                 return "Bear";
-			if (cn.Contains("direwolf"))                             return "Dire";
-			if (cn.Contains("wolf"))                                 return "Wolf";
-			if (cn.Contains("mountainlion") || cn.Contains("lion")) return "Lion";
-			if (cn.Contains("boar"))                                 return "Boar";
-			if (cn.Contains("coyote"))                               return "Coyote";
-			if (cn.Contains("snake"))                                return "Snake";
-			if (cn.Contains("vulture"))                              return "Vulture";
-			if (cn.Contains("stag"))                                 return "Stag";
-			if (cn.Contains("doe"))                                  return "Doe";
-			if (cn.Contains("rabbit"))                               return "Rabbit";
-			if (cn.Contains("chicken"))                              return "Chicken";
-			return "";
-		}
-		string debugName = ((Entity)entity).GetDebugName();
-		return string.IsNullOrEmpty(debugName) ? cn : debugName;
-	}
-
-	private static string GetSprite(EntityAlive e)
-	{
-		string cn = ((Entity)e).EntityClass.entityClassName.ToLowerInvariant();
-		if (e is EntityAnimal || cn.Contains("snake") || cn.Contains("vulture"))
-		{
-			if (cn.Contains("bear"))                                 return "ui_game_symbol_tracking_bear";
-			if (cn.Contains("direwolf"))                             return "ui_game_symbol_tracking_direwolf";
-			if (cn.Contains("wolf"))                                 return "ui_game_symbol_tracking_wolf";
-			if (cn.Contains("mountainlion") || cn.Contains("lion")) return "ui_game_symbol_tracking_mountainlion";
-			if (cn.Contains("boar"))                                 return "ui_game_symbol_tracking_boar";
-			if (cn.Contains("coyote"))                               return "ui_game_symbol_tracking_coyote";
-			if (cn.Contains("snake"))                                return "ui_game_symbol_tracking_snake";
-			if (cn.Contains("stag"))                                 return "ui_game_symbol_tracking_stag";
-			if (cn.Contains("doe"))                                  return "ui_game_symbol_tracking_doe";
-			if (cn.Contains("rabbit"))                               return "ui_game_symbol_tracking_rabbit";
-			if (cn.Contains("chicken"))                              return "ui_game_symbol_tracking_chicken";
-			return "ui_game_symbol_tracking_timid";
-		}
-		return "ui_game_symbol_tracking_zombie";
-	}
-
-	private static bool IsHostile(EntityAlive e)
-	{
-		string text = ((Entity)e).EntityClass.entityClassName.ToLowerInvariant();
-		if (!text.Contains("zombie") && !text.Contains("bear") && !text.Contains("direwolf"))
-		{
-			return text.Contains("vulture");
-		}
-		return true;
 	}
 
 	private static string GetContainerLabel(Entity entity)
