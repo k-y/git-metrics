@@ -1,7 +1,8 @@
 <configs>
 	<append xpath="/nav_object_classes">
-		<!-- Normal Zombie (red skull) — always visible, no Tracking requirement -->
+		<!-- Normal Zombie (red skull) -->
 		<nav_object_class name="tfztracking1">
+			<property name="requirement_type" value="Tracking"/>
 			<map_settings>
 				<property name="sprite_name" value="ui_game_symbol_zombie"/>
 				<property name="min_distance" value="0"/>
@@ -28,6 +29,7 @@
 		</nav_object_class>
 		<!-- Feral Zombie (beige skull) -->
 		<nav_object_class name="tfztracking2">
+			<property name="requirement_type" value="Tracking"/>
 			<map_settings>
 				<property name="sprite_name" value="ui_game_symbol_zombie"/>
 				<property name="min_distance" value="0"/>
@@ -54,6 +56,7 @@
 		</nav_object_class>
 		<!-- Radiated Zombie (green skull) -->
 		<nav_object_class name="tfztracking3">
+			<property name="requirement_type" value="Tracking"/>
 			<map_settings>
 				<property name="sprite_name" value="ui_game_symbol_zombie"/>
 				<property name="min_distance" value="0"/>
@@ -80,6 +83,7 @@
 		</nav_object_class>
 		<!-- Charged Zombie (blue skull) -->
 		<nav_object_class name="tfztracking4">
+			<property name="requirement_type" value="Tracking"/>
 			<map_settings>
 				<property name="sprite_name" value="ui_game_symbol_zombie"/>
 				<property name="min_distance" value="0"/>
@@ -106,6 +110,7 @@
 		</nav_object_class>
 		<!-- Infernal Zombie (orange skull) -->
 		<nav_object_class name="tfztracking5">
+			<property name="requirement_type" value="Tracking"/>
 			<map_settings>
 				<property name="sprite_name" value="ui_game_symbol_zombie"/>
 				<property name="min_distance" value="0"/>
@@ -130,11 +135,9 @@
 				<property name="offset" value="0,1.2,0"/>
 			</onscreen_settings>
 		</nav_object_class>
-	</append>
-
-	<append xpath="/nav_object_classes">
-		<!-- Hostile animals (orange) — bear, direwolf, wolf, mountain lion, vulture, zombie dog, coyote -->
+		<!-- Hostile animals (orange) — bear, direwolf, wolf, mountain lion, vulture, zombie dog, coyote, snake -->
 		<nav_object_class name="tfzanimal_hostile">
+			<property name="requirement_type" value="Tracking"/>
 			<map_settings>
 				<property name="sprite_name" value="ui_game_symbol_tracking_bear"/>
 				<property name="min_distance" value="0"/>
@@ -161,6 +164,7 @@
 		</nav_object_class>
 		<!-- Passive/huntable animals (green) — boar, stag, doe, rabbit, chicken, etc. -->
 		<nav_object_class name="tfzanimal_passive">
+			<property name="requirement_type" value="Tracking"/>
 			<map_settings>
 				<property name="sprite_name" value="ui_game_symbol_tracking_stag"/>
 				<property name="min_distance" value="0"/>
@@ -185,5 +189,5 @@
 				<property name="offset" value="0,1.5,0"/>
 			</onscreen_settings>
 		</nav_object_class>
-	</insertAfter>
+	</append>
 </configs>

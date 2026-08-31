@@ -1,3 +1,25 @@
 <configs>
-	<!-- No buffs required. Tracking is always-on via nav_object_class (no requirement_type="Tracking"). -->
+	<append xpath="/buffs">
+		<!--
+		    Permanent tracking buff applied to the player on spawn via entityclasses.xml.
+		    Uses vanilla entity tags (zombie, feral, radiated, charged, infernal, animal)
+		    so no entity Tag property modification is needed.
+		    The onSelfBuffRemove re-add makes this effectively irremovable.
+		-->
+		<buff name="buffZombieTrackerAlways" icon="ui_game_symbol_zombie">
+			<duration value="0"/>
+			<effect_group name="Track All Zombies and Animals">
+				<!-- Zombie tiers — matched by vanilla entity tags -->
+				<passive_effect name="Tracking" operation="base_set" value="1" tags="zombie"/>
+				<passive_effect name="Tracking" operation="base_set" value="1" tags="feral"/>
+				<passive_effect name="Tracking" operation="base_set" value="1" tags="radiated"/>
+				<passive_effect name="Tracking" operation="base_set" value="1" tags="charged"/>
+				<passive_effect name="Tracking" operation="base_set" value="1" tags="infernal"/>
+				<!-- Animals — all animal entities share the "animal" tag -->
+				<passive_effect name="Tracking" operation="base_set" value="1" tags="animal"/>
+				<!-- Re-add self on removal to prevent the buff from being cleared -->
+				<triggered_effect trigger="onSelfBuffRemove" action="AddBuff" buff="buffZombieTrackerAlways"/>
+			</effect_group>
+		</buff>
+	</append>
 </configs>

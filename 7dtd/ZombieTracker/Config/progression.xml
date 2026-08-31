@@ -1,3 +1,3 @@
 <configs>
-	<!-- No perk required. Tracking is always-on via nav_object_class (no requirement_type="Tracking"). -->
+	<!-- No perk required. Tracking buff is applied via player entity class spawn trigger in entityclasses.xml. -->
 </configs>

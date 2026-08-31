@@ -1,14 +1,23 @@
 <configs>
-	<!-- Set NavObject on the zombie template so all inheriting classes default to tier 1 (normal/red).
-	     Using append so it works whether or not the property already exists on the template. -->
-	<append xpath="/entity_classes/entity_class[@name='zombieTemplateMale']">
-		<property name="NavObject" value="tfztracking1"/>
-		<property name="TrackerIcon" value="ui_game_symbol_zombie"/>
+	<!-- Apply the permanent tracking buff to the player on every spawn/respawn -->
+	<append xpath="/entity_classes/entity_class[@name='playerMale']">
+		<effect_group>
+			<triggered_effect trigger="onSelfFirstSpawn" action="AddBuff" buff="buffZombieTrackerAlways"/>
+			<triggered_effect trigger="onSelfSpawn" action="AddBuff" buff="buffZombieTrackerAlways"/>
+		</effect_group>
+	</append>
+	<append xpath="/entity_classes/entity_class[@name='playerFemale']">
+		<effect_group>
+			<triggered_effect trigger="onSelfFirstSpawn" action="AddBuff" buff="buffZombieTrackerAlways"/>
+			<triggered_effect trigger="onSelfSpawn" action="AddBuff" buff="buffZombieTrackerAlways"/>
+		</effect_group>
 	</append>
 
-	<!-- Override NavObject for higher-tier zombies.
-	     <append> adds the property; last value wins in the game's property lookup,
-	     so this overrides whatever was inherited from the template. -->
+	<!-- Assign NavObject to zombie template (inherited by all zombies as tier 1 default) -->
+	<append xpath="/entity_classes/entity_class[@name='zombieTemplateMale']">
+		<property name="NavObject" value="tfztracking1"/>
+	</append>
+	<!-- Override NavObject for higher-tier zombies -->
 	<append xpath="/entity_classes/entity_class[contains(@name, 'Feral') and not(contains(@name, 'Radiated')) and not(contains(@name, 'Charged')) and not(contains(@name, 'Infernal'))]">
 		<property name="NavObject" value="tfztracking2"/>
 	</append>
@@ -22,7 +31,7 @@
 		<property name="NavObject" value="tfztracking5"/>
 	</append>
 
-	<!-- Animal tracking: set passive (green) on the animal template as the default for all animals -->
+	<!-- Assign NavObject to animal template (passive/green as default for all animals) -->
 	<append xpath="/entity_classes/entity_class[@name='animalTemplateMale']">
 		<property name="NavObject" value="tfzanimal_passive"/>
 	</append>
