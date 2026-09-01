@@ -305,14 +305,15 @@ public class TechFreqsVisualIndicatorMod : IModApi
 		val.hiddenOnMap = true;
 		val.UseOverrideColor = true;
 		val.OverrideColor = GetContainerColor(label);
+		// Disable on-screen rendering for containers. The XUiC_OnScreenIcons update path
+		// unconditionally casts TrackedEntity to EntityAlive for health-ring rendering;
+		// EntityLootContainer is not EntityAlive, so any MaxDistance > 0 causes a spam crash.
+		// Compass icons (hiddenOnCompass = false above) are unaffected by this.
 		if (val.CurrentScreenSettings is NavObjectScreenSettings screen)
 		{
-			screen.MaxDistance = flag ? DetectionRadius : 0f;
+			screen.MaxDistance = 0f;
 			screen.MinDistance = 0f;
-			screen.ShowTextType = (ShowLabels && flag)
-				? NavObjectScreenSettings.ShowTextTypes.Name
-				: NavObjectScreenSettings.ShowTextTypes.None;
-			screen.FontSize = FontSize;
+			screen.ShowTextType = NavObjectScreenSettings.ShowTextTypes.None;
 		}
 	}
 
