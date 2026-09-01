@@ -105,8 +105,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 				EntityPlayerLocal val = (EntityPlayerLocal)obj;
 				if (val != null)
 				{
-					try { UpdateEntityDetector(val); }
-					catch (Exception ex) { Log("UpdateEntityDetector error: " + ex.Message); }
+					UpdateEntityDetector(val);
 				}
 			}
 			yield return (object)new WaitForSeconds(UpdateInterval);
@@ -221,15 +220,27 @@ public class TechFreqsVisualIndicatorMod : IModApi
 			if (value == null || value.entityId == ((Entity)player).entityId || value.IsDespawned) continue;
 			if (Vector3.Distance(((Entity)player).position, value.position) > DetectionRadius) continue;
 
+			// Container check first — EntityLootContainer may extend EntityAlive,
+			// so match by class name before IsAlive() would silently skip it.
 			string containerLabel = GetContainerLabel(value);
 			if (containerLabel != null)
 			{
 				string key = $"container_{value.entityId}";
 				activeKeys.Add(key);
 				CreateOrUpdateContainerNavObject(player, key, value, containerLabel);
+				continue;
+			}
+
+			EntityAlive alive = value as EntityAlive;
+			if (alive != null && ((Entity)alive).IsAlive())
+			{
+				string key = $"entity_{value.entityId}";
+				activeKeys.Add(key);
+				CreateOrUpdateNavObject(player, key, alive);
 			}
 		}
 
+		// Remove nav objects for entities that left range or despawned
 		var keysToRemove = new List<string>();
 		foreach (string key in entityNavObjects.Keys)
 			if (!activeKeys.Contains(key)) keysToRemove.Add(key);
@@ -238,6 +249,149 @@ public class TechFreqsVisualIndicatorMod : IModApi
 			NavObjectManager.Instance.UnRegisterNavObject(entityNavObjects[key]);
 			entityNavObjects.Remove(key);
 		}
+	}
+
+	private static void CreateOrUpdateNavObject(EntityPlayerLocal player, string key, EntityAlive entity)
+	{
+		float num = Vector3.Distance(((Entity)player).position, ((Entity)entity).position);
+		bool showLabels = ShowLabels;
+		bool showDistance = ShowDistance;
+		string name = "";
+		if (showLabels)
+		{
+			string label = BuildShortLabel(entity);
+			if (!string.IsNullOrEmpty(label))
+				name = showDistance ? $"{label} {num:F0}m" : label;
+		}
+
+		if (entityNavObjects.TryGetValue(key, out NavObject val) && val != null)
+		{
+			val.name = name;
+			return;
+		}
+
+		bool showCompassIcons = ShowCompassIcons;
+		bool showOnScreenIcons = ShowOnScreenIcons;
+		bool showMapIcons = ShowMapIcons;
+		bool flag = showOnScreenIcons || showLabels;
+		val = NavObjectManager.Instance.RegisterNavObject("quest", (Entity)(object)entity, GetSprite(entity), !showCompassIcons);
+		if (val == null) return;
+		entityNavObjects[key] = val;
+		val.name = name;
+		val.usingLocalizationId = false;
+		val.hiddenOnCompass = !showCompassIcons;
+		val.hiddenOnMap = !showMapIcons;
+		val.UseOverrideColor = true;
+		val.OverrideColor = (entity is EntityZombie) ? new Color(1f, 0f, 0f, 0.8f) : (IsHostile(entity) ? new Color(1f, 0.5f, 0f, 0.8f) : new Color(0f, 1f, 0f, 0.8f));
+		if (val.CurrentScreenSettings is NavObjectScreenSettings screen)
+		{
+			screen.MaxDistance = flag ? DetectionRadius : 0f;
+			screen.MinDistance = 0f;
+			screen.ShowTextType = (showLabels && flag)
+				? NavObjectScreenSettings.ShowTextTypes.Name
+				: NavObjectScreenSettings.ShowTextTypes.None;
+			screen.FontSize = FontSize;
+		}
+	}
+
+	private static string GetNavObjectClass(EntityAlive e)
+	{
+		string cn = ((Entity)e).EntityClass.entityClassName.ToLowerInvariant();
+		if (cn.Contains("zombie") || cn.Contains("boss") || cn.Contains("feral") ||
+		    cn.Contains("radiated") || cn.Contains("elite"))
+		{
+			if (cn.Contains("boss"))     return "EnemyBoss";
+			if (cn.Contains("mini"))     return "EnemyMiniboss";
+			if (cn.Contains("radiated")) return "EnemyRadiated";
+			if (cn.Contains("feral"))    return "EnemyFeral";
+			if (cn.Contains("elite"))    return "EnemyElite";
+			return "EnemyZombie";
+		}
+		if (cn.Contains("vulture"))      return "EnemyVulture";
+		if (e is EntityAnimal)
+		{
+			if (cn.Contains("bear"))            return "animaltracking_bear";
+			if (cn.Contains("direwolf"))        return "animaltracking_direwolf";
+			if (cn.Contains("wolf"))            return "animaltracking_wolf";
+			if (cn.Contains("mountainlion") || cn.Contains("lion")) return "animaltracking_mountainlion";
+			if (cn.Contains("snake"))           return "animaltracking_snake";
+			if (cn.Contains("coyote"))          return "animaltracking_coyote";
+			if (cn.Contains("boar"))            return "animaltracking_boar";
+			if (cn.Contains("stag"))            return "animaltracking_stag";
+			if (cn.Contains("doe"))             return "animaltracking_doe";
+			if (cn.Contains("rabbit"))          return "animaltracking_rabbit";
+			if (cn.Contains("chicken"))         return "animaltracking_chicken";
+			return "animaltracking_timid";
+		}
+		return "EnemyDot";
+	}
+
+	private static string BuildShortLabel(EntityAlive entity)
+	{
+		string cn = ((Entity)entity).EntityClass?.entityClassName?.ToLowerInvariant() ?? "";
+		if (cn.Contains("boss"))    return "BOSS";
+		if (cn.Contains("zombie"))
+		{
+			string orig = ((Entity)entity).EntityClass?.entityClassName ?? "";
+			int idx = orig.IndexOf("zombie", StringComparison.OrdinalIgnoreCase);
+			string suffix = idx >= 0 ? orig.Substring(idx + 6).TrimStart('_') : "";
+			if (suffix.StartsWith("Male", StringComparison.OrdinalIgnoreCase))
+				suffix = suffix.Substring(4).TrimStart('_');
+			else if (suffix.StartsWith("Female", StringComparison.OrdinalIgnoreCase))
+				suffix = suffix.Substring(6).TrimStart('_');
+			return string.IsNullOrEmpty(suffix) ? "Z" : "Z " + suffix;
+		}
+		if (cn.Contains("trader"))  return "Trader";
+		if (cn.Contains("drone"))   return "Drone";
+		if (entity is EntityAnimal || cn.Contains("snake") || cn.Contains("vulture"))
+		{
+			if (cn.Contains("bear"))                                 return "Bear";
+			if (cn.Contains("direwolf"))                             return "Dire";
+			if (cn.Contains("wolf"))                                 return "Wolf";
+			if (cn.Contains("mountainlion") || cn.Contains("lion")) return "Lion";
+			if (cn.Contains("boar"))                                 return "Boar";
+			if (cn.Contains("coyote"))                               return "Coyote";
+			if (cn.Contains("snake"))                                return "Snake";
+			if (cn.Contains("vulture"))                              return "Vulture";
+			if (cn.Contains("stag"))                                 return "Stag";
+			if (cn.Contains("doe"))                                  return "Doe";
+			if (cn.Contains("rabbit"))                               return "Rabbit";
+			if (cn.Contains("chicken"))                              return "Chicken";
+			return "";
+		}
+		string debugName = ((Entity)entity).GetDebugName();
+		return string.IsNullOrEmpty(debugName) ? cn : debugName;
+	}
+
+	private static string GetSprite(EntityAlive e)
+	{
+		string cn = ((Entity)e).EntityClass.entityClassName.ToLowerInvariant();
+		if (e is EntityAnimal || cn.Contains("snake") || cn.Contains("vulture"))
+		{
+			if (cn.Contains("bear"))                                 return "ui_game_symbol_tracking_bear";
+			if (cn.Contains("direwolf"))                             return "ui_game_symbol_tracking_direwolf";
+			if (cn.Contains("wolf"))                                 return "ui_game_symbol_tracking_wolf";
+			if (cn.Contains("mountainlion") || cn.Contains("lion")) return "ui_game_symbol_tracking_mountainlion";
+			if (cn.Contains("boar"))                                 return "ui_game_symbol_tracking_boar";
+			if (cn.Contains("coyote"))                               return "ui_game_symbol_tracking_coyote";
+			if (cn.Contains("snake"))                                return "ui_game_symbol_tracking_snake";
+			if (cn.Contains("stag"))                                 return "ui_game_symbol_tracking_stag";
+			if (cn.Contains("doe"))                                  return "ui_game_symbol_tracking_doe";
+			if (cn.Contains("rabbit"))                               return "ui_game_symbol_tracking_rabbit";
+			if (cn.Contains("chicken"))                              return "ui_game_symbol_tracking_chicken";
+			return "ui_game_symbol_tracking_timid";
+		}
+		return "ui_game_symbol_tracking_zombie";
+	}
+
+	private static bool IsHostile(EntityAlive e)
+	{
+		string text = ((Entity)e).EntityClass.entityClassName.ToLowerInvariant();
+		if (!text.Contains("zombie") && !text.Contains("bear") && !text.Contains("direwolf"))
+		{
+			return text.Contains("vulture");
+		}
+		return true;
 	}
 
 	private static string GetContainerLabel(Entity entity)
@@ -285,18 +439,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 			return;
 		}
 
-		// Re-check state — entity may have despawned between the loop guard and here.
-		var mgr = NavObjectManager.Instance;
-		if (mgr == null || entity == null || entity.IsDespawned || entity.EntityClass == null) return;
-
-		bool flag = ShowOnScreenIcons || ShowLabels;
-		try
-		{
-			val = mgr.RegisterNavObject("TFVIcontainer", entity, "ui_game_symbol_loot_sack", false);
-			if (val == null)
-				val = mgr.RegisterNavObject("quest", entity, "ui_game_symbol_loot_sack", false);
-		}
-		catch (Exception ex) { Log("RegisterNavObject container error: " + ex.Message); val = null; }
+		val = NavObjectManager.Instance.RegisterNavObject("quest", entity, "ui_game_symbol_loot_sack", false);
 		if (val == null) return;
 		entityNavObjects[key] = val;
 		val.name = name;
@@ -305,10 +448,10 @@ public class TechFreqsVisualIndicatorMod : IModApi
 		val.hiddenOnMap = true;
 		val.UseOverrideColor = true;
 		val.OverrideColor = GetContainerColor(label);
-		// Disable on-screen rendering for containers. The XUiC_OnScreenIcons update path
-		// unconditionally casts TrackedEntity to EntityAlive for health-ring rendering;
-		// EntityLootContainer is not EntityAlive, so any MaxDistance > 0 causes a spam crash.
-		// Compass icons (hiddenOnCompass = false above) are unaffected by this.
+		// On-screen icons disabled for containers: XUiC_OnScreenIcons.Update unconditionally
+		// casts TrackedEntity to EntityAlive for health-ring rendering. EntityLootContainer is
+		// not EntityAlive, so MaxDistance > 0 causes InvalidCastException spam when a party
+		// member's radar buff propagates container nav objects to all clients.
 		if (val.CurrentScreenSettings is NavObjectScreenSettings screen)
 		{
 			screen.MaxDistance = 0f;
