@@ -439,6 +439,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 			return;
 		}
 
+		bool flag = ShowOnScreenIcons || ShowLabels;
 		val = NavObjectManager.Instance.RegisterNavObject("quest", entity, "ui_game_symbol_loot_sack", false);
 		if (val == null) return;
 		entityNavObjects[key] = val;
@@ -448,15 +449,14 @@ public class TechFreqsVisualIndicatorMod : IModApi
 		val.hiddenOnMap = true;
 		val.UseOverrideColor = true;
 		val.OverrideColor = GetContainerColor(label);
-		// On-screen icons disabled for containers: XUiC_OnScreenIcons.Update unconditionally
-		// casts TrackedEntity to EntityAlive for health-ring rendering. EntityLootContainer is
-		// not EntityAlive, so MaxDistance > 0 causes InvalidCastException spam when a party
-		// member's radar buff propagates container nav objects to all clients.
 		if (val.CurrentScreenSettings is NavObjectScreenSettings screen)
 		{
-			screen.MaxDistance = 0f;
+			screen.MaxDistance = flag ? DetectionRadius : 0f;
 			screen.MinDistance = 0f;
-			screen.ShowTextType = NavObjectScreenSettings.ShowTextTypes.None;
+			screen.ShowTextType = (ShowLabels && flag)
+				? NavObjectScreenSettings.ShowTextTypes.Name
+				: NavObjectScreenSettings.ShowTextTypes.None;
+			screen.FontSize = FontSize;
 		}
 	}
 
