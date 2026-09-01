@@ -440,7 +440,7 @@ public class TechFreqsVisualIndicatorMod : IModApi
 		}
 
 		bool flag = ShowOnScreenIcons || ShowLabels;
-		val = NavObjectManager.Instance.RegisterNavObject("quest", entity, "ui_game_symbol_loot_sack", false);
+		val = NavObjectManager.Instance.RegisterNavObject("fetch_container", entity, "ui_game_symbol_loot_sack", false);
 		if (val == null) return;
 		entityNavObjects[key] = val;
 		val.name = name;
