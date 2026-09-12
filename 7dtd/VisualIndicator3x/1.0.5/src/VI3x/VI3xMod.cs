@@ -571,6 +571,16 @@ public class VI3xMod : IModApi
 			}
 			return "yel";
 		}
+		if (text2.StartsWith("ns") && text2.Contains("mobbag"))
+		{
+			string tier = text2.EndsWith("t3") ? "3" : (text2.EndsWith("t2") ? "2" : "");
+			if (text2.Contains("forest")) return "Frst" + tier;
+			if (text2.Contains("burnt"))  return "Brnt" + tier;
+			if (text2.Contains("desert")) return "Dsrt" + tier;
+			if (text2.Contains("snow"))   return "Snow" + tier;
+			if (text2.Contains("waste"))  return "Wste" + tier;
+			return "NsMob" + tier;
+		}
 		return null;
 	}
 
@@ -593,6 +603,12 @@ public class VI3xMod : IModApi
 		//IL_0198: Unknown result type (might be due to invalid IL or missing references)
 		//IL_01af: Unknown result type (might be due to invalid IL or missing references)
 		//IL_01b4: Unknown result type (might be due to invalid IL or missing references)
+		if (label.StartsWith("Frst")) return new Color(0.1f, 0.8f, 0.2f, 0.9f);
+		if (label.StartsWith("Brnt")) return new Color(1f,   0.4f, 0.1f, 0.9f);
+		if (label.StartsWith("Dsrt")) return new Color(0.9f, 0.75f, 0.2f, 0.9f);
+		if (label.StartsWith("Snow")) return new Color(0.4f, 0.85f, 1f,  0.9f);
+		if (label.StartsWith("Wste")) return new Color(0.7f, 0.2f, 0.9f, 0.9f);
+		if (label.StartsWith("NsMob")) return new Color(1f,  1f,   1f,  0.8f);
 		if (1 == 0)
 		{
 		}
