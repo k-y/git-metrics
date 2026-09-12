@@ -581,6 +581,26 @@ public class VI3xMod : IModApi
 			if (text2.Contains("waste"))  return "Wste" + tier;
 			return "NsMob" + tier;
 		}
+		if (text2.StartsWith("ns") && !text2.Contains("mobbag"))
+		{
+			// Gold (zpackGoldPrefab): EX boss series, BornLootBag, MusubiRareBag
+			if (text2 == "nsbossbornlootbag" || text2 == "nsmusubirarebag" ||
+			    (text2.StartsWith("nsboss") && text2.Contains("ex") && text2.EndsWith("lootbag") && !text2.Contains("kasper")))
+				return "gld";
+			// Blue (zpackBluePrefab): echo, mid, supply, shukuen
+			if (text2.StartsWith("nsecho") || text2.StartsWith("nsmid") ||
+			    text2 == "nsmusubisupplybag" || text2 == "nsshukuenbag")
+				return "blu";
+			// Special non-backpack containers: weapon bag, mag/time/boom crates
+			if (text2 == "nsmusubiweaponbag" || text2 == "nsmagbag" ||
+			    text2 == "nstimebag" || text2 == "nsboombag")
+				return "box";
+			// Red (zpackRedPrefab inherited): standard boss bags, Kasper, wild boss, misc
+			if (text2.StartsWith("nsboss") || text2.StartsWith("nswildboss") ||
+			    text2 == "nsmusubinigibag" || text2 == "nsshachikubag" ||
+			    text2 == "nsredcometbag" || text2 == "nsmbag")
+				return "red";
+		}
 		return null;
 	}
 
@@ -611,14 +631,15 @@ public class VI3xMod : IModApi
 		}
 		Color result = (Color)(label switch
 		{
-			"yel" => new Color(1f, 0.9f, 0f, 0.8f), 
-			"blu" => new Color(0f, 0.4f, 1f, 1f), 
-			"org" => new Color(1f, 0.55f, 0f, 0.8f), 
-			"red" => new Color(1f, 0.1f, 0.1f, 0.8f), 
-			"mini" => new Color(0.9f, 0f, 0.9f, 0.8f), 
-			"box" => new Color(1f, 0.3f, 0.7f, 0.8f), 
-			"chest" => new Color(1f, 0.85f, 0f, 0.8f), 
-			_ => new Color(1f, 1f, 1f, 0.8f), 
+			"yel"   => new Color(1f,    0.9f,  0f,    0.8f),
+			"blu"   => new Color(0f,    0.4f,  1f,    1f),
+			"org"   => new Color(1f,    0.55f, 0f,    0.8f),
+			"red"   => new Color(1f,    0.1f,  0.1f,  0.8f),
+			"mini"  => new Color(0.9f,  0f,    0.9f,  0.8f),
+			"box"   => new Color(1f,    0.3f,  0.7f,  0.8f),
+			"chest" => new Color(1f,    0.85f, 0f,    0.8f),
+			"gld"   => new Color(1f,    0.75f, 0f,    0.9f),
+			_       => new Color(1f,    1f,    1f,    0.8f),
 		});
 		if (1 == 0)
 		{
