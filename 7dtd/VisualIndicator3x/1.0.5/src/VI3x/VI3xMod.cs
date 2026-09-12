@@ -603,12 +603,9 @@ public class VI3xMod : IModApi
 		//IL_0198: Unknown result type (might be due to invalid IL or missing references)
 		//IL_01af: Unknown result type (might be due to invalid IL or missing references)
 		//IL_01b4: Unknown result type (might be due to invalid IL or missing references)
-		if (label.StartsWith("Frst")) return new Color(0.1f, 0.8f, 0.2f, 0.9f);
-		if (label.StartsWith("Brnt")) return new Color(1f,   0.4f, 0.1f, 0.9f);
-		if (label.StartsWith("Dsrt")) return new Color(0.9f, 0.75f, 0.2f, 0.9f);
-		if (label.StartsWith("Snow")) return new Color(0.4f, 0.85f, 1f,  0.9f);
-		if (label.StartsWith("Wste")) return new Color(0.7f, 0.2f, 0.9f, 0.9f);
-		if (label.StartsWith("NsMob")) return new Color(1f,  1f,   1f,  0.8f);
+		if (label.StartsWith("Frst") || label.StartsWith("Brnt") || label.StartsWith("Dsrt") ||
+		    label.StartsWith("Snow") || label.StartsWith("Wste") || label.StartsWith("NsMob"))
+			return new Color(1f, 0.9f, 0f, 0.8f);
 		if (1 == 0)
 		{
 		}
