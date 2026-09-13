@@ -290,7 +290,7 @@ public class VI3xMod : IModApi
 			{
 				((NavObjectSettings)currentScreenSettings).MaxDistance = (flag ? DetectionRadius : 0f);
 				((NavObjectSettings)currentScreenSettings).MinDistance = 0f;
-				currentScreenSettings.ShowTextType = (ShowTextTypes)((showLabels && flag) ? 2 : 0);
+				currentScreenSettings.ShowTextType = (NavObjectScreenSettings.ShowTextTypes)((showLabels && flag) ? 2 : 0);
 				currentScreenSettings.FontSize = FontSize;
 			}
 		}
@@ -668,7 +668,7 @@ public class VI3xMod : IModApi
 			{
 				((NavObjectSettings)currentScreenSettings).MaxDistance = (flag ? DetectionRadius : 0f);
 				((NavObjectSettings)currentScreenSettings).MinDistance = 0f;
-				currentScreenSettings.ShowTextType = (ShowTextTypes)((ShowLabels && flag) ? 2 : 0);
+				currentScreenSettings.ShowTextType = (NavObjectScreenSettings.ShowTextTypes)((ShowLabels && flag) ? 2 : 0);
 				currentScreenSettings.FontSize = FontSize;
 			}
 		}
