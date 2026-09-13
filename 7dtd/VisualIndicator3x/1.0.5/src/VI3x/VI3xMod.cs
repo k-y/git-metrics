@@ -588,7 +588,7 @@ public class VI3xMod : IModApi
 				return "blu";
 			// Special non-backpack containers: weapon bag, mag/time/boom crates
 			if (text2 == "nsmusubiweaponbag" || text2 == "nsmagbag" ||
-			    text2 == "nstimebag" || text2 == "nsboombag")
+			    text2 == "nstimebag" || text2.StartsWith("nsboombag"))
 				return "box";
 			// Red (zpackRedPrefab inherited): standard boss bags, Kasper, wild boss, misc
 			if (text2.StartsWith("nsboss") || text2.StartsWith("nswildboss") ||
