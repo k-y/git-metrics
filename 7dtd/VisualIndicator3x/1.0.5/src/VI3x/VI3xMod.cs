@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace VI3xMod;
 
