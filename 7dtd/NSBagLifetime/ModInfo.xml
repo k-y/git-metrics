@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ModInfo>
+  <Name value="NSBagLifetime" />
+  <DisplayName value="NS Bag Lifetime" />
+  <Version value="1.0" />
+  <Description value="Extends NewGenesis loot bag lifetimes to match standard boss bags (86400s / 24h)." />
+  <Author value="TechFreq" />
+  <Website value="" />
+  <APIVersion value="0" />
+</ModInfo>

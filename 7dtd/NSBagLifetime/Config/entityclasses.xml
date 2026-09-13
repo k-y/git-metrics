@@ -1,0 +1,10 @@
+<configs>
+  <!-- Extend all NS loot bag lifetimes to match standard boss bags (86400s / 24h) -->
+  <set xpath="/entity_classes/entity_class[
+    @name='nsForestMobBag' or @name='nsBurntMobBag' or @name='nsDesertMobBag' or
+    @name='nsSnowMobBag'   or @name='nsWasteMobBag' or
+    @name='nsMagBag'       or @name='nsTimeBag'      or @name='nsTideBossBag' or
+    @name='nsMBag'         or @name='nsShachikuBag'  or @name='nsRedCometBag' or
+    @name='nsShukuenBag'
+  ]/property[@name='TimeStayAfterDeath']/@value">86400</set>
+</configs>
