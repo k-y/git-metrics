@@ -5,6 +5,6 @@
     @name='nsSnowMobBag'   or @name='nsWasteMobBag' or
     @name='nsMagBag'       or @name='nsTimeBag'      or @name='nsTideBossBag' or
     @name='nsMBag'         or @name='nsShachikuBag'  or @name='nsRedCometBag' or
-    @name='nsShukuenBag'
+    @name='nsShukuenBag'   or @name='nsBoomBag'
   ]/property[@name='TimeStayAfterDeath']/@value">86400</set>
 </configs>
